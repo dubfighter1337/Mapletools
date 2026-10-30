@@ -52,6 +52,9 @@
 }
 
 * { box-sizing: border-box; }
+/* Elements toggled with the hidden attribute (tooltip, class picker) must stay hidden even
+   when their class sets a display value. */
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   background: radial-gradient(1200px 600px at 20% -10%, var(--bg-2), var(--bg)) fixed;
