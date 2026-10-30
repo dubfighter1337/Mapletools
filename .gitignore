@@ -1,0 +1,3 @@
+# Personal starting levels read from your own sheets; the shared copy starts everyone at zero.
+data/my-levels.js
+.claude/
