@@ -4,6 +4,7 @@ MapleData.addClass({
   id: "ren",
   name: "Ren",
   system: "hexa",
+  category: "Warrior",
   dataVersion: "Updated 14 Apr 2026",
   importedFrom: "https://docs.google.com/spreadsheets/d/1pkPMoiICiTzrrMGOyHKO0LiQjAifBBm0LDt5gT4ZT60/edit",
   importedOn: "2026-10-30",
@@ -18,13 +19,13 @@ MapleData.addClass({
     { id: "4a", name: "Sol Janus", short: "Janus", group: "common", role: "Common", max: 30, icon: "data/icons/common/sol-janus.png", cost: "common" },
     { id: "3c", name: "Wish Unending", group: "mastery", role: "Mastery", max: 30, icon: "data/icons/ren/3c.png", cost: "mastery" },
     { id: "3d", name: "Plum Blossom: Raining Blossoms", short: "Raining Blossoms", group: "mastery", role: "Mastery", max: 30, icon: "data/icons/ren/3d.png", cost: "mastery" },
-    { id: "2b", name: "Heavenly World", short: "Ascent", group: "skill", role: "Ascent", max: 30, cost: "skill" },
+    { id: "2b", name: "Heavenly World", short: "Ascent", group: "skill", role: "Ascent", max: 30, icon: "data/icons/ren/2b.png", cost: "skill" },
     { id: "5a", name: "HEXA Stat I", group: "stat", role: "HEXA Stat", max: 20, icon: "data/icons/ren/5a.png" },
     { id: "5b", name: "HEXA Stat II", group: "stat", role: "HEXA Stat", max: 20, icon: "data/icons/ren/5b.png" },
     { id: "5c", name: "HEXA Stat III", group: "stat", role: "HEXA Stat", max: 20, icon: "data/icons/ren/5c.png" },
     { id: "4b", name: "Sol Hecate", short: "Hecate", group: "common", role: "Common", max: 30, icon: "data/icons/common/sol-hecate.png", cost: "common" },
     { id: "6a", name: "Lotus Flower", short: "Lotus", group: "common", role: "Common III", max: 30, icon: "data/icons/ren/6a.png", cost: "common3" },
-    { id: "7a", name: "Thousandfold Slash", short: "Thousand Slash", group: "skill", role: "Skill III", max: 30, cost: "skill3" },
+    { id: "7a", name: "Thousandfold Slash", short: "Thousand Slash", group: "skill", role: "Skill III", max: 30, icon: "data/icons/ren/7a.png", cost: "skill3" },
   ],
   // Each step: [node id, target level] or [node id, target level, "note"]. Listed in upgrade order.
   orders: [

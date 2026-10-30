@@ -1,16 +1,17 @@
 # 6th Job Planner
 
 A talent-calculator style planner for MapleStory 6th job: click nodes up and down, and it tells you
-what to level next, what it costs, and how many days of fragments that is. One tab per character.
+what to level next, what it costs, and how many days of fragments that is. Covers all 54 classes.
 
-| Class | System | Data from |
+| Classes | System | Data from |
 |---|---|---|
-| Hoyoung | HEXA Matrix | Soushi's HEXA tracker (MapleScouter priority orders) |
-| Ren | HEXA Matrix | Soushi's HEXA tracker (MapleScouter priority orders) |
-| Erel Light | Erda Link | Erel Erda Link tracker ("Vinny Prog" order) |
-| Sia Astelle | Erda Link | Sia Erda Link tracker ("Vinny Prog" order) |
+| Hoyoung, Ren | HEXA Matrix | Soushi's HEXA tracker (MapleScouter priority orders, 6 variants) |
+| Erel Light, Sia Astelle | Erda Link | Erel / Sia Erda Link trackers ("Vinny Prog" order) |
+| The other 50 | HEXA Matrix | [Metumtam](https://github.com/darealshekel/Metumtam) (MapleScouter orders, fragment- and Sol Erda-limited) |
 
-All data lives in this folder (`data/`). The app never talks to Google Sheets.
+All data lives in this folder (`data/`). The app never talks to Google Sheets or other sites.
+Metumtam's orders for 48 classes were calculated with KMS data, so some skills can be ahead of GMS;
+those classes say so under their name.
 
 ## Using it
 
@@ -21,6 +22,8 @@ Open `index.html` in your browser (double-click it). No install and no internet 
 - **Looking ahead** lists the next upgrades. Fill in **Fragments owned / per day** to get day estimates.
 - **Undo** (or Ctrl+Z) reverts changes. **Reset** puts every node of the class back to its starting level.
 - On a phone, tap to level up and use the − button in the **Node** panel to level down.
+- The top bar shows up to 5 pinned classes. **All classes ▾** opens the full list (with search); click the
+  **★** next to a class to pin or unpin it. Each browser remembers its own pins.
 
 Your levels are saved in the browser you use. Each browser, and each way of opening the page, has its own
 saved copy. Use **Backup** to save a file and **Restore** to load it somewhere else.
@@ -55,6 +58,7 @@ powershell -ExecutionPolicy Bypass -File tools\import-class.ps1 -Source "<sheet 
 - `-Name`: the tab name shown in the app.
 - `-SaveLevels`: also copy the levels typed into that sheet as your starting levels.
 - `-LevelsFrom "<link>"`: take the levels from another sheet (e.g. your own copy) instead.
+- `-Category`: `Warrior`, `Mage`, `Archer`, `Thief` or `Pirate` (groups the class in the class list).
 
 It writes `data/classes/<id>.js` and icons to `data/icons/<id>/`, and adds the class to `data/classes/index.js`.
 
@@ -62,17 +66,34 @@ Examples (these are the commands used to build the current data):
 
 ```
 # HEXA classes: point at the class's source sheet from Soushi's class list
-tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1dGuPsKLnCYrjYxcCLzUroBUi4TpG4iaLziMM8A0WTxU/edit" -Id hoyoung -Name "Hoyoung"
-tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1pkPMoiICiTzrrMGOyHKO0LiQjAifBBm0LDt5gT4ZT60/edit" -Id ren -Name "Ren" -SaveLevels -LevelsFrom "<your own copy of the HEXA tracker>"
+tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1dGuPsKLnCYrjYxcCLzUroBUi4TpG4iaLziMM8A0WTxU/edit" -Id hoyoung -Name "Hoyoung" -Category Thief
+tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1pkPMoiICiTzrrMGOyHKO0LiQjAifBBm0LDt5gT4ZT60/edit" -Id ren -Name "Ren" -Category Warrior -SaveLevels -LevelsFrom "<your own copy of the HEXA tracker>"
 
 # Erda Link classes: point at the tracker sheet
-tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1N7pKMWa8cscPa_MtbiqRQNycCR8jbemKoyla1Z-mgto/edit" -Id erel -Name "Erel Light" -SaveLevels -LevelsFrom "<your own copy of the Erel tracker>"
-tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1dOIP089yZPlNF7AeGT4S-tI8j2Xflu6bAhvY0WGVlhA/edit" -Id sia -Name "Sia Astelle"
+tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1N7pKMWa8cscPa_MtbiqRQNycCR8jbemKoyla1Z-mgto/edit" -Id erel -Name "Erel Light" -Category Warrior -SaveLevels -LevelsFrom "<your own copy of the Erel tracker>"
+tools\import-class.ps1 -Source "https://docs.google.com/spreadsheets/d/1dOIP089yZPlNF7AeGT4S-tI8j2Xflu6bAhvY0WGVlhA/edit" -Id sia -Name "Sia Astelle" -Category Mage
 ```
+
+### All other classes (Metumtam)
+
+The other 50 classes come from Metumtam's `data.js`, which holds MapleScouter's priority orders for every
+class (one for when fragments are your bottleneck, one for when Sol Erda is). To refresh them when
+Metumtam updates, or to pull in a class it adds:
+
+```
+powershell -ExecutionPolicy Bypass -File tools\import-metumtam.ps1
+powershell -ExecutionPolicy Bypass -File tools\import-metumtam.ps1 -Only kain,lara
+```
+
+It skips `hoyoung`, `ren`, `erel` and `sia` (they have their own sources; change with `-Skip`), downloads
+icons it doesn't have yet, adds Sol Janus (not in Metumtam's orders), and treats each HEXA Stat step as
+"level that stat node to 20". Third skill nodes only have Korean names in Metumtam; they show as
+"Skill III" with the Korean name in the tooltip.
 
 ### Icons
 
-HEXA skill icons come from the MapleStory wiki. After importing a new HEXA class, run:
+Metumtam classes get their icons from Metumtam. For other HEXA classes the icons come from the
+MapleStory wiki. After importing one, run:
 
 ```
 powershell -ExecutionPolicy Bypass -File tools\fetch-icons.ps1 -Id <id>
@@ -80,8 +101,9 @@ powershell -ExecutionPolicy Bypass -File tools\fetch-icons.ps1 -Id <id>
 
 It matches node names against the wiki's `<Class>/Skills` page and prints every match. If it picks the
 wrong file or finds nothing, choose one yourself, e.g. `-Map @{ '3b' = 'Skill_HEXA_Heaven_Consuming_Flames.png' }`.
-Skills newer than the wiki (some Ascent and Skill III nodes) keep their initials until the wiki adds them.
-Re-importing a class keeps icons that are already in `data/icons/<id>/`.
+Skills newer than the wiki (Ascent and Skill III nodes) usually aren't there yet; Metumtam's `assets/`
+folder has them (that's where Hoyoung's and Ren's came from). Re-importing a class keeps icons that are
+already in `data/icons/<id>/`.
 
 For a HEXA tracker copy, only the class selected in its "Choose Class" box is in the file. Select the
 class you want before downloading, or use that class's source sheet as above.
@@ -137,6 +159,14 @@ data/classes/         one file per class + index.js (load order)
 data/icons/           node icons
 data/my-levels.js     your starting levels from your sheets (local only, not in git)
 tools/import-class.ps1  sheet -> data importer
+tools/import-metumtam.ps1  Metumtam data.js -> the other 50 classes
 tools/fetch-icons.ps1   wiki -> skill icons
+tools/lib/              shared helpers (xlsx reader, class file writer)
 tools/serve.ps1       optional local web server (http://localhost:8765)
 ```
+
+## Credits
+
+Priority orders: MapleScouter, via Soushi's HEXA Matrix Tracker (Hoyoung, Ren), Metumtam by darealshekel
+(other classes) and "Vinny Prog" (Erel Light, Sia Astelle). Icons: MapleStory Wiki, Metumtam and the
+tracker sheets. Game names and art belong to Nexon.

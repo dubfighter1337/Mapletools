@@ -4,6 +4,7 @@ MapleData.addClass({
   id: "hoyoung",
   name: "Hoyoung",
   system: "hexa",
+  category: "Thief",
   dataVersion: "Updated 23 Aug 2026",
   importedFrom: "https://docs.google.com/spreadsheets/d/1dGuPsKLnCYrjYxcCLzUroBUi4TpG4iaLziMM8A0WTxU/edit",
   importedOn: "2026-10-30",
@@ -18,13 +19,13 @@ MapleData.addClass({
     { id: "4a", name: "Sol Janus", short: "Janus", group: "common", role: "Common", max: 30, icon: "data/icons/common/sol-janus.png", cost: "common" },
     { id: "3c", name: "Talisman: Clone & Ghost", short: "Talisman", group: "mastery", role: "Mastery", max: 30, icon: "data/icons/hoyoung/3c.png", cost: "mastery" },
     { id: "3d", name: "Scroll: Vortex & Butterfly", short: "Scroll", group: "mastery", role: "Mastery", max: 30, icon: "data/icons/hoyoung/3d.png", cost: "mastery" },
-    { id: "2b", name: "Heavenly World", short: "Ascent", group: "skill", role: "Ascent", max: 30, cost: "skill" },
+    { id: "2b", name: "Heavenly World", short: "Ascent", group: "skill", role: "Ascent", max: 30, icon: "data/icons/hoyoung/2b.png", cost: "skill" },
     { id: "5a", name: "HEXA Stat I", group: "stat", role: "HEXA Stat", max: 20, icon: "data/icons/hoyoung/5a.png" },
     { id: "5b", name: "HEXA Stat II", group: "stat", role: "HEXA Stat", max: 20, icon: "data/icons/hoyoung/5b.png" },
     { id: "5c", name: "HEXA Stat III", group: "stat", role: "HEXA Stat", max: 20, icon: "data/icons/hoyoung/5c.png" },
     { id: "4b", name: "Sol Hecate", short: "Hecate", group: "common", role: "Common", max: 30, icon: "data/icons/common/sol-hecate.png", cost: "common" },
     { id: "6a", name: "Lotus Flower", short: "Lotus", group: "common", role: "Common III", max: 30, icon: "data/icons/hoyoung/6a.png", cost: "common3" },
-    { id: "7a", name: "Sage: Liberated Taotie", short: "Taotie", group: "skill", role: "Skill III", max: 30, cost: "skill3" },
+    { id: "7a", name: "Sage: Liberated Taotie", short: "Taotie", group: "skill", role: "Skill III", max: 30, icon: "data/icons/hoyoung/7a.png", cost: "skill3" },
   ],
   // Each step: [node id, target level] or [node id, target level, "note"]. Listed in upgrade order.
   orders: [

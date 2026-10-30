@@ -4,6 +4,7 @@ MapleData.addClass({
   id: "sia",
   name: "Sia Astelle",
   system: "erdaLink",
+  category: "Mage",
   dataVersion: "2.3",
   dataNote: "Tree of stars added to progression order.",
   importedFrom: "https://docs.google.com/spreadsheets/d/1dOIP089yZPlNF7AeGT4S-tI8j2Xflu6bAhvY0WGVlhA/edit",

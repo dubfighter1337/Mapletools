@@ -12,7 +12,15 @@
       <span class="brand-mark" aria-hidden="true">◆</span>
       <span class="brand-name">6th Job Planner</span>
     </div>
-    <nav id="tabs" class="tabs" aria-label="Classes"></nav>
+    <nav id="tabs" class="tabs" aria-label="Pinned classes"></nav>
+    <div class="picker" id="picker">
+      <button id="picker-btn" class="btn ghost picker-btn" aria-haspopup="true" aria-expanded="false"></button>
+      <div id="picker-panel" class="picker-panel" hidden>
+        <input id="picker-search" type="search" placeholder="Search classes…" autocomplete="off" aria-label="Search classes">
+        <p id="picker-hint" class="picker-hint"></p>
+        <div id="picker-list" class="picker-list"></div>
+      </div>
+    </div>
     <div class="actions">
       <button id="undo" class="btn ghost" title="Undo (Ctrl+Z)" disabled>Undo</button>
       <button id="export" class="btn ghost" title="Save a backup file of all your levels">Backup</button>

@@ -4,6 +4,7 @@ MapleData.addClass({
   id: "erel",
   name: "Erel Light",
   system: "erdaLink",
+  category: "Warrior",
   dataVersion: "1.4",
   dataNote: "Tree of stars added to progression order.",
   importedFrom: "https://docs.google.com/spreadsheets/d/1N7pKMWa8cscPa_MtbiqRQNycCR8jbemKoyla1Z-mgto/edit",

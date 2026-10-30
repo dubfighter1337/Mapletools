@@ -4,6 +4,8 @@
   const D = window.MapleData;
   const STORAGE_KEY = 'maple-6th-planner-v1';
   const AHEAD_ROWS = 12;
+  const MAX_PINNED = 5;
+  const CATEGORY_ORDER = ['Warrior', 'Mage', 'Archer', 'Thief', 'Pirate'];
 
   const GROUP_LABELS = {
     skill: 'Skill', mastery: 'Mastery', boost: 'Boost', common: 'Common', stat: 'Stat',
@@ -208,12 +210,74 @@
     if (tipEl) showTip(tipEl); else hideTip();
   }
 
+  // ------------------------------------------------------------ class tabs + picker
+
+  const systemLabel = (c) => (c.system === 'erdaLink' ? 'Erda Link' : 'HEXA');
+
+  function pinnedIds() {
+    if (!Array.isArray(state.pinned)) state.pinned = (D.defaultPinned || []).slice(0, MAX_PINNED);
+    return state.pinned.filter((id) => D.classes.some((c) => c.id === id));
+  }
+
   function renderTabs() {
-    $('tabs').innerHTML = D.classes.map((c) => `
+    const pinned = pinnedIds().map((id) => D.classes.find((c) => c.id === id));
+    $('tabs').innerHTML = pinned.map((c) => `
       <button class="tab ${c === current ? 'is-active' : ''}" data-class="${esc(c.id)}">
         <span>${esc(c.name)}</span>
-        <span class="tab-system">${c.system === 'erdaLink' ? 'Erda Link' : 'HEXA'}</span>
+        <span class="tab-system">${systemLabel(c)}</span>
       </button>`).join('');
+    const unpinnedActive = current && !pinned.includes(current);
+    const btn = $('picker-btn');
+    btn.classList.toggle('is-active', unpinnedActive);
+    btn.innerHTML = unpinnedActive
+      ? `<span>${esc(current.name)}</span><span class="caret">▾</span>`
+      : `<span>All classes</span><span class="caret">▾</span>`;
+  }
+
+  function renderPickerList() {
+    const q = $('picker-search').value.trim().toLowerCase();
+    const pinned = pinnedIds();
+    $('picker-hint').textContent = pinned.length >= MAX_PINNED
+      ? `★ ${pinned.length}/${MAX_PINNED} pinned. Unpin one to pin another.`
+      : `★ ${pinned.length}/${MAX_PINNED} pinned. Star a class to keep it in the top bar.`;
+    const matches = D.classes.filter((c) => !q || c.name.toLowerCase().includes(q));
+    const cats = [...new Set(matches.map((c) => c.category || 'Other'))]
+      .sort((a, b) => (CATEGORY_ORDER.indexOf(a) + 1 || 99) - (CATEGORY_ORDER.indexOf(b) + 1 || 99));
+    $('picker-list').innerHTML = cats.map((cat) => `
+      <section class="picker-group">
+        <h4>${esc(cat)}</h4>
+        ${matches.filter((c) => (c.category || 'Other') === cat).sort((a, b) => a.name.localeCompare(b.name)).map((c) => {
+          const isPinned = pinned.includes(c.id);
+          return `
+            <div class="picker-row ${c === current ? 'is-active' : ''}">
+              <button class="picker-pick" data-pick="${esc(c.id)}">
+                <span>${esc(c.name)}</span><span class="tab-system">${systemLabel(c)}</span>
+              </button>
+              <button class="picker-pin ${isPinned ? 'is-pinned' : ''}" data-pin="${esc(c.id)}"
+                ${!isPinned && pinned.length >= MAX_PINNED ? 'disabled' : ''}
+                title="${isPinned ? 'Unpin from the top bar' : 'Pin to the top bar'}" aria-label="${isPinned ? 'Unpin' : 'Pin'} ${esc(c.name)}">${isPinned ? '★' : '☆'}</button>
+            </div>`;
+        }).join('')}
+      </section>`).join('') || '<p class="muted picker-empty">No class matches that.</p>';
+  }
+
+  function openPicker(open) {
+    const panel = $('picker-panel');
+    panel.hidden = !open;
+    $('picker-btn').setAttribute('aria-expanded', String(open));
+    if (open) {
+      $('picker-search').value = '';
+      renderPickerList();
+      $('picker-search').focus();
+    }
+  }
+
+  function togglePin(id) {
+    const pinned = pinnedIds();
+    state.pinned = pinned.includes(id) ? pinned.filter((p) => p !== id) : pinned.concat(id).slice(0, MAX_PINNED);
+    saveState();
+    renderTabs();
+    renderPickerList();
   }
 
   function renderHeader() {
@@ -300,7 +364,7 @@
                     ${levelBadge(n, lvl)}
                   </button>
                   <span class="hexa-name">${esc(n.short || n.name)}</span>
-                  <span class="hexa-role">${esc(n.role || GROUP_LABELS[n.group])}</span>
+                  ${(n.role || GROUP_LABELS[n.group]) !== (n.short || n.name) ? `<span class="hexa-role">${esc(n.role || GROUP_LABELS[n.group])}</span>` : ''}
                 </div>`;
             }).join('')}
           </div>
@@ -464,6 +528,7 @@
       <h2 class="card-title">Node</h2>
       <p class="sel-name">${esc(n.name)}</p>
       <p class="muted sel-sub">${esc(n.role || GROUP_LABELS[n.group])}${n.short && n.short !== n.name ? ` · ${esc(n.short)}` : ''}</p>
+      ${n.nameKo ? `<p class="muted small sel-ko" lang="ko">${esc(n.nameKo)}</p>` : ''}
       <div class="stepper">
         <button class="btn" data-set="${n.min}" title="Reset">⟲</button>
         <button class="btn" data-set="${lvl - 1}" ${lvl <= n.min ? 'disabled' : ''}>−</button>
@@ -538,6 +603,7 @@
     tipId = n.id;
     tip.innerHTML = `
       <strong>${esc(n.name)}</strong>
+      ${n.nameKo ? `<span class="muted" lang="ko">${esc(n.nameKo)}</span>` : ''}
       <span class="muted">${esc(n.role || GROUP_LABELS[n.group])} · Lv ${lvl}/${n.max}</span>
       ${lvl < n.max ? `<span>Next: ${costHtml(rangeCost(n, lvl, lvl + 1), label)}</span><span>To max: ${costHtml(rangeCost(n, lvl, n.max), label)}</span>` : '<span class="done-text">Maxed</span>'}`;
     tip.hidden = false;
@@ -564,6 +630,27 @@
     $('tabs').addEventListener('click', (e) => {
       const b = e.target.closest('[data-class]');
       if (b) switchClass(b.dataset.class);
+    });
+
+    $('picker-btn').addEventListener('click', () => openPicker($('picker-panel').hidden));
+    $('picker-search').addEventListener('input', renderPickerList);
+    $('picker-search').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const first = $('picker-list').querySelector('[data-pick]');
+        if (first) { openPicker(false); switchClass(first.dataset.pick); }
+      }
+    });
+    $('picker-list').addEventListener('click', (e) => {
+      const pin = e.target.closest('[data-pin]');
+      if (pin) { togglePin(pin.dataset.pin); return; }
+      const pick = e.target.closest('[data-pick]');
+      if (pick) { openPicker(false); switchClass(pick.dataset.pick); }
+    });
+    document.addEventListener('click', (e) => {
+      if (!$('picker-panel').hidden && !e.target.closest('#picker')) openPicker(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !$('picker-panel').hidden) { openPicker(false); $('picker-btn').focus(); }
     });
 
     const board = $('board');
