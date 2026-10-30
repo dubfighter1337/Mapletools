@@ -22,7 +22,7 @@ Open `index.html` in your browser (double-click it). No install and no internet 
 - **Looking ahead** lists the next upgrades. Fill in **Fragments owned / per day** to get day estimates.
 - **Undo** (or Ctrl+Z) reverts changes. **Reset** puts every node of the class back to its starting level.
 - On a phone, tap to level up and use the − button in the **Node** panel to level down.
-- The top bar shows up to 5 pinned classes. **All classes ▾** opens the full list (with search); click the
+- The top bar shows up to 15 pinned classes (it scrolls sideways if they don't fit). **All classes ▾** opens the full list (with search); click the
   **★** next to a class to pin or unpin it. Each browser remembers its own pins.
 
 Your levels are saved in the browser you use. Each browser, and each way of opening the page, has its own

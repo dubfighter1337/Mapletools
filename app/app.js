@@ -4,7 +4,7 @@
   const D = window.MapleData;
   const STORAGE_KEY = 'maple-6th-planner-v1';
   const AHEAD_ROWS = 12;
-  const MAX_PINNED = 5;
+  const MAX_PINNED = 15;
   const CATEGORY_ORDER = ['Warrior', 'Mage', 'Archer', 'Thief', 'Pirate'];
 
   const GROUP_LABELS = {
@@ -221,11 +221,18 @@
 
   function renderTabs() {
     const pinned = pinnedIds().map((id) => D.classes.find((c) => c.id === id));
-    $('tabs').innerHTML = pinned.map((c) => `
+    const tabs = $('tabs');
+    const scroll = tabs.scrollLeft;
+    tabs.innerHTML = pinned.map((c) => `
       <button class="tab ${c === current ? 'is-active' : ''}" data-class="${esc(c.id)}">
         <span>${esc(c.name)}</span>
         <span class="tab-system">${systemLabel(c)}</span>
       </button>`).join('');
+    tabs.scrollLeft = scroll;
+    const active = tabs.querySelector('.is-active');
+    if (active && (active.offsetLeft < tabs.scrollLeft - 2 || active.offsetLeft + active.offsetWidth > tabs.scrollLeft + tabs.clientWidth + 2)) {
+      tabs.scrollLeft = active.offsetLeft - 8;
+    }
     const unpinnedActive = current && !pinned.includes(current);
     const btn = $('picker-btn');
     btn.classList.toggle('is-active', unpinnedActive);
@@ -631,6 +638,13 @@
       const b = e.target.closest('[data-class]');
       if (b) switchClass(b.dataset.class);
     });
+    // With many pinned classes the bar scrolls sideways; let the mouse wheel do that.
+    $('tabs').addEventListener('wheel', (e) => {
+      const tabs = $('tabs');
+      if (tabs.scrollWidth <= tabs.clientWidth || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      tabs.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }, { passive: false });
 
     $('picker-btn').addEventListener('click', () => openPicker($('picker-panel').hidden));
     $('picker-search').addEventListener('input', renderPickerList);

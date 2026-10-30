@@ -69,7 +69,7 @@ function Register-Class {
   if (-not (Test-Path $path)) {
     $text = "// Class files to load (data/classes/<id>.js). The importers add new classes here.`n" +
             "MapleData.classFiles = [];`n" +
-            "// Classes shown as tabs until a viewer picks their own (at most 5).`n" +
+            "// Classes shown as tabs until a viewer picks their own (at most 15).`n" +
             "MapleData.defaultPinned = [];`n"
     [IO.File]::WriteAllText($path, $text, $Utf8NoBom)
   }
