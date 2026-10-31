@@ -74,6 +74,52 @@ window.Site = (function () {
     return list.find((c) => c.id === id) || null;
   }
 
+  const formatNumber = (n) => (Number(n) ? Math.round(Number(n)).toLocaleString('en-US') : '');
+
+  // Symbols per character: arrays of levels in the order of `names`. Power per symbol level from
+  // the MapleStory wiki: Arcane starts at 30 (+10 per level, max 20); Sacred and Grand Sacred start at
+  // 10 (+10 per level, max 11). Grand Sacred power counts toward Sacred Power (SAC).
+  const SYMBOLS = [
+    { key: 'arc', label: 'Arcane', stat: 'ARC', max: 20, power: (l) => (l > 0 ? 20 + 10 * l : 0),
+      names: ['Vanishing Journey', 'Chu Chu Island', 'Lachelein', 'Arcana', 'Morass', 'Esfera'] },
+    { key: 'sac', label: 'Sacred', stat: 'SAC', max: 11, power: (l) => 10 * l,
+      names: ['Cernium', 'Arcus', 'Odium', 'Shangri-La', 'Arteria', 'Carcion'] },
+    { key: 'gsac', label: 'Grand Sacred', stat: 'SAC', max: 11, power: (l) => 10 * l,
+      names: ['Tallahart', 'Geardock'] },
+  ];
+
+  function symbolTotals(sym) {
+    const totals = { ARC: 0, SAC: 0 };
+    for (const s of SYMBOLS) {
+      ((sym && sym[s.key]) || []).forEach((lvl) => { totals[s.stat] += s.power(Number(lvl) || 0); });
+    }
+    return totals;
+  }
+
+  // Combat power if known, otherwise the HEXA converted number.
+  function powerLabel(c) {
+    if (Number(c.cp)) return formatCp(c.cp);
+    if (Number(c.conv)) return `${formatNumber(c.conv)} conv.`;
+    return '';
+  }
+
+  // Nexon's ranking job names -> our class ids (most match the class name directly).
+  const JOB_ALIASES = {
+    'bow master': 'bowmaster', 'blade master': 'dual_blade', 'cannon master': 'cannoneer',
+    'arch mage (f/p)': 'arch_mage_fire_poison', 'arch mage (i/l)': 'arch_mage_ice_lightning',
+  };
+  function classFromJob(job) {
+    const key = String(job || '').trim().toLowerCase();
+    if (JOB_ALIASES[key]) return JOB_ALIASES[key];
+    const list = (window.MapleData && MapleData.classList) || [];
+    const hit = list.find((c) => c.name.toLowerCase() === key);
+    return hit ? hit.id : '';
+  }
+
+  // World ids seen in Nexon's rankings (others just show the region).
+  const WORLDS = { 30: 'Luna', 45: 'Kronos', 46: 'Solis', 70: 'Hyperion' };
+  const worldName = (id) => WORLDS[id] || '';
+
   function renderNav() {
     const el = $('sitenav');
     if (!el) return;
@@ -98,5 +144,8 @@ window.Site = (function () {
 
   document.addEventListener('DOMContentLoaded', renderNav);
 
-  return { TOOLS, $, esc, readJSON, writeJSON, partyInfo, setPartyInfo, uid, loadScript, toast, formatCode, formatCp, classInfo, renderNav, setPartyStatus };
+  return {
+    TOOLS, $, esc, readJSON, writeJSON, partyInfo, setPartyInfo, uid, loadScript, toast, formatCode, formatCp,
+    formatNumber, classInfo, SYMBOLS, symbolTotals, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
+  };
 })();

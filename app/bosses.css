@@ -44,10 +44,6 @@
 
 .empty-state { padding: 26px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); }
 
-.dialog-wide { width: min(520px, calc(100vw - 32px)); }
-.span-2 { grid-column: span 2; }
-.dialog-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
-.dialog-actions .spacer { flex: 1; }
 .pick-list { list-style: none; margin: 6px 0 10px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .pick-list li {
   display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto; align-items: center; gap: 8px;
@@ -62,6 +58,5 @@
 .add-member .or { color: var(--muted); font-size: 12px; }
 
 @media (max-width: 640px) {
-  .span-2 { grid-column: auto; }
   .stat { min-width: calc(50% - 5px); }
 }

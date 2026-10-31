@@ -4,7 +4,7 @@ Tools for a MapleStory party, live at https://dubfighter1337.github.io/Mapletool
 
 | Page | What it does |
 |---|---|
-| **Characters** (`index.html`, start page) | The party roster: everyone's characters with class, level and combat power. Create or join a party here. |
+| **Characters** (`index.html`, start page) | The party roster: add a character by name (NA/EU), with picture, level, class, combat power or HEXA converted, and all Arcane/Sacred/Grand Sacred symbols. Create or join a party here. |
 | **HEXA Planner** (`hexa.html`) | Talent-calculator style 6th job planner: what to level next, what it costs, how many days of fragments. |
 | **Boss Schedule** (`bosses.html`) | Boss groups with their members, ticked off when done; resets weekly (Thursday 00:00 UTC) or monthly (Black Mage, 1st of the month). |
 
@@ -20,11 +20,34 @@ friends' group). Joining on a second device: pick "I'm <your name>" when joining
 Without a party, the roster and schedule are kept in your own browser only.
 
 Party data lives in a free Firebase Realtime Database (project `mapletools-69cbe`). The site's Firebase
-config is in `app/firebase-config.js` (public by design). The database rules are in `database.rules.json`:
+config is in `app/config.js` (public by design). The database rules are in `database.rules.json`:
 anyone who knows a party's code can read and write that party, and nobody can list parties. To change
 them, paste the file into Firebase console → Realtime Database → Rules → Publish.
 
 The HEXA Planner is personal: its levels stay in your browser and are not shared with the party.
+
+## Characters
+
+Type a name, pick NA or EU and press **+**. The character's level, class, world and picture come from
+Nexon's official rankings (see "Character lookup" below); then fill in **combat power** (in millions) or
+**HEXA converted** (at least one is required) and the symbol levels. ARC and SAC totals are worked out
+from the symbol levels (Arcane: 30 at level 1, +10 per level; Sacred and Grand Sacred: 10 per level; Grand
+Sacred counts toward SAC). **↻** on a card updates level, class and picture from the rankings.
+
+The lines on each card come from `CARD_ROWS` at the top of `app/roster.js`. To add a line, add a row
+there and a field in the character form (`index.html`, and `openCharDialog`/`saveChar` in `roster.js`).
+
+### Character lookup (Nexon rankings relay)
+
+Nexon's ranking API doesn't allow other websites to read it from the browser, so the site asks a tiny relay
+that runs as a free Google Apps Script web app (the code is `tools/lookup-relay.gs`). Without it, characters
+are added by hand. To set it up:
+
+1. Go to https://script.google.com, click **New project**, name it `MapleTools lookup`.
+2. Replace the code in `Code.gs` with the contents of `tools/lookup-relay.gs` and save.
+3. **Deploy → New deployment**, gear icon → **Web app**. Execute as: **Me**. Who has access: **Anyone**. Deploy.
+4. Allow the permission Google asks for (the script needs to fetch `nexon.com`).
+5. Copy the **Web app URL** (ends in `/exec`), put it in `window.LOOKUP_URL` in `app/config.js`, commit and push.
 
 ## HEXA Planner
 
@@ -183,10 +206,12 @@ index.html            Characters page (start page)
 hexa.html             HEXA Planner
 bosses.html           Boss Schedule
 app/site.js, site.css    shared menu, helpers and styles
-app/party.js          party data (local, or live via Firebase); firebase-config.js holds the project config
+app/party.js          party data (local, or live via Firebase)
+app/config.js         Firebase config + character lookup relay URL
 app/roster.*, hexa.*, bosses.*   one script + stylesheet per page
 data/bosses.js        boss name suggestions for the schedule
 database.rules.json   Firebase Realtime Database rules
+tools/lookup-relay.gs  character lookup relay (Google Apps Script)
 data/hexa-costs.js    HEXA cost tables
 data/classes/         one file per class + index.js (load order)
 data/icons/           node icons

@@ -78,7 +78,16 @@
     const emblem = m.cls && m.cls.icon ? `<img class="class-emblem" src="${esc(m.cls.icon)}" alt="${esc(m.cls.name)}" title="${esc(m.cls.name)}">` : '<span class="class-emblem"></span>';
     return `${emblem}
       <span class="m-name" title="${esc(m.name)}">${esc(m.name)}${withOwner && m.owner && Party.inParty ? ` <span class="m-owner">${esc(m.owner)}</span>` : ''}${m.guest ? ' <span class="m-owner">guest</span>' : ''}</span>
-      <span class="m-cp">${esc(Site.formatCp(m.cp))}</span>`;
+      <span class="m-cp">${esc(Site.powerLabel(m))}</span>`;
+  }
+
+  // Hover text for a member: level and symbol power (what decides if they can enter a boss).
+  function memberTitle(ref) {
+    const m = member(ref);
+    if (m.guest || m.missing) return '';
+    const t = Site.symbolTotals(m.sym);
+    return [m.level ? `Lv ${m.level}` : '', m.cls ? m.cls.name : '', t.ARC ? `ARC ${t.ARC}` : '', t.SAC ? `SAC ${t.SAC}` : '']
+      .filter(Boolean).join(' · ');
   }
 
   // ------------------------------------------------------------ rendering
@@ -113,7 +122,7 @@
           <button class="btn ghost edit-btn" data-edit="${esc(g.id)}">Edit</button>
         </header>
         <ul class="members">
-          ${members.length ? members.map((ref) => `<li class="${ref.startsWith('n:') ? 'is-guest' : ''}">${memberRow(ref, true)}</li>`).join('')
+          ${members.length ? members.map((ref) => `<li class="${ref.startsWith('n:') ? 'is-guest' : ''}" title="${esc(memberTitle(ref))}">${memberRow(ref, true)}</li>`).join('')
             : '<li class="empty">No members yet</li>'}
         </ul>
         <footer class="group-foot"><span>${members.length} / ${MAX_MEMBERS}</span><span>${cp ? `${esc(Site.formatCp(cp))} total` : ''}</span></footer>
@@ -182,7 +191,8 @@
         <optgroup label="${esc(Party.inParty ? (doc.players[pid] || {}).name || 'Unknown player' : 'My characters')}">
           ${chars.sort((a, b) => (b.cp || 0) - (a.cp || 0)).map((c) => {
             const cls = Site.classInfo(c.cls);
-            return `<option value="c:${esc(c.cid)}">${esc(c.name)}${cls ? ` · ${esc(cls.name)}` : ''}${c.cp ? ` · ${esc(Site.formatCp(c.cp))}` : ''}</option>`;
+            const power = Site.powerLabel(c);
+            return `<option value="c:${esc(c.cid)}">${esc(c.name)}${cls ? ` · ${esc(cls.name)}` : ''}${power ? ` · ${esc(power)}` : ''}</option>`;
           }).join('')}
         </optgroup>`).join('');
     $('g-add-char').disabled = full;

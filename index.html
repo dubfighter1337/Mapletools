@@ -16,11 +16,21 @@
         <h1>Characters</h1>
         <p id="roster-sub"></p>
       </div>
-      <button id="add-char" class="btn primary">+ Add character</button>
     </div>
 
     <div class="roster-layout">
-      <section id="roster" class="roster" aria-live="polite"></section>
+      <section class="roster-main">
+        <form id="add-bar" class="add-bar" autocomplete="off">
+          <div class="region-toggle" role="group" aria-label="Region">
+            <button type="button" data-region="na">NA</button>
+            <button type="button" data-region="eu">EU</button>
+          </div>
+          <input id="add-name" type="text" maxlength="13" placeholder="Add character by name…" aria-label="Character name">
+          <button type="submit" class="btn primary add-btn" aria-label="Add character">+</button>
+        </form>
+        <p id="add-status" class="add-status" hidden></p>
+        <section id="roster" class="roster" aria-live="polite"></section>
+      </section>
       <aside class="roster-side">
         <section class="card" id="party"></section>
         <section class="card">
@@ -31,15 +41,27 @@
     </div>
   </main>
 
-  <dialog id="char-dialog" class="dialog">
+  <dialog id="char-dialog" class="dialog dialog-wide">
     <form id="char-form" method="dialog">
-      <h2 id="char-dialog-title">Add character</h2>
-      <div class="fields">
-        <label class="field span-2"><span>Character name</span><input id="char-name" type="text" maxlength="24" required autocomplete="off"></label>
-        <label class="field span-2"><span>Class</span><select id="char-class"></select></label>
-        <label class="field"><span>Level</span><input id="char-level" type="number" min="1" max="300" inputmode="numeric"></label>
-        <label class="field"><span>Combat power (millions)</span><input id="char-cp" type="number" min="0" step="0.1" inputmode="decimal" placeholder="e.g. 160"></label>
+      <div class="char-dialog-head">
+        <div id="char-art" class="char-art small"></div>
+        <h2 id="char-dialog-title">Add character</h2>
       </div>
+      <p id="char-note" class="note" hidden></p>
+      <div class="fields">
+        <label class="field"><span>Character name</span><input id="char-name" type="text" maxlength="13" required autocomplete="off"></label>
+        <label class="field"><span>Region</span><select id="char-region"><option value="eu">EU</option><option value="na">NA</option></select></label>
+        <label class="field"><span>Class</span><select id="char-class"></select></label>
+        <label class="field"><span>Level</span><input id="char-level" type="number" min="1" max="300" inputmode="numeric"></label>
+      </div>
+      <h3 class="form-section">Power <span class="muted">(fill in at least one)</span></h3>
+      <div class="fields">
+        <label class="field"><span>Combat power (millions)</span><input id="char-cp" type="number" min="0" step="0.1" inputmode="decimal" placeholder="e.g. 160"></label>
+        <label class="field"><span>HEXA converted</span><input id="char-conv" type="number" min="0" step="any" inputmode="decimal"></label>
+      </div>
+      <h3 class="form-section">Symbols <span id="sym-totals" class="muted"></span></h3>
+      <div id="sym-fields" class="sym-fields"></div>
+      <p id="char-error" class="form-error" hidden></p>
       <div class="dialog-actions">
         <button type="button" id="char-delete" class="btn ghost danger">Delete</button>
         <span class="spacer"></span>
@@ -56,7 +78,7 @@
   <script src="app/registry.js"></script>
   <script src="app/site.js"></script>
   <script src="data/classes/index.js"></script>
-  <script src="app/firebase-config.js"></script>
+  <script src="app/config.js"></script>
   <script src="app/party.js"></script>
   <script src="app/roster.js"></script>
 </body>
