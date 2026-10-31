@@ -17,7 +17,7 @@ function doGet(e) {
   if (res.getResponseCode() !== 200) return json({ error: 'Nexon rankings answered ' + res.getResponseCode() + '. Try again later.' });
 
   var ranks = (JSON.parse(res.getContentText()).ranks) || [];
-  var r = ranks.filter(function (x) { return String(x.characterName).toLowerCase() === name.toLowerCase(); })[0] || ranks[0];
+  var r = ranks.filter(function (x) { return String(x.characterName).toLowerCase() === name.toLowerCase(); })[0];
   if (!r) return json({ error: name + ' was not found in the ' + region.toUpperCase() + ' rankings.' });
   return json({ name: r.characterName, level: r.level, job: r.jobName, worldID: r.worldID, image: r.characterImgURL });
 }

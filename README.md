@@ -49,6 +49,9 @@ are added by hand. To set it up:
 4. Allow the permission Google asks for (the script needs to fetch `nexon.com`).
 5. Copy the **Web app URL** (ends in `/exec`), put it in `window.LOOKUP_URL` in `app/config.js`, commit and push.
 
+The relay is live. After changing `tools/lookup-relay.gs`, paste it into the Apps Script project again and use
+**Deploy → Manage deployments → ✏️ → Version: New version → Deploy**, so the `/exec` URL stays the same.
+
 ## HEXA Planner
 
 Covers all 54 classes.

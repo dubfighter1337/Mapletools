@@ -14,4 +14,4 @@ window.FIREBASE_CONFIG = {
 
 // Character lookup relay: tools/lookup-relay.gs deployed as a Google Apps Script web app (its /exec URL).
 // It reads Nexon's official rankings for the roster's "add by name". null = characters are added by hand.
-window.LOOKUP_URL = null;
+window.LOOKUP_URL = 'https://script.google.com/macros/s/AKfycbyIJhPHrPSu34XpTCKFuCm28-Aq-t0P6Bmqae25FVTZDBghxz6EM6QrU8AliQNM9W4-/exec';
