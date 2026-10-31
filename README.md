@@ -30,6 +30,13 @@ them, paste the file into Firebase console → Realtime Database → Rules → P
 
 The HEXA Planner is personal: its levels stay in your browser and are not shared with the party.
 
+### Order and layout
+
+Characters are shown strongest first (combat power, then HEXA converted, level, name). **Reorder** in your own
+block (Characters, Boss Planner, Dailies) lets you drag your cards into your own order, shared by those three
+pages; **Reset to CP order** undoes it. On the Boss Schedule, **Arrange** lets anyone in the party drag the boss
+cards into rows (and add empty spots) so the board looks like the party wants; the layout is shared.
+
 ### Your devices and backup
 
 The **Your devices** card on the Characters page (`app/devices.js`):
@@ -272,6 +279,7 @@ app/bossing.js        boss helpers shared by the schedule and planner (resets, w
 app/config.js         Firebase config + character lookup relay URL
 app/roster.*, hexa.*, bosses.*, planner.*, dailies.*   one script + stylesheet per page
 app/devices.js        Characters page: QR code / device link and backup
+app/arrange.js        drag and drop for Reorder (characters) and Arrange (schedule layout)
 app/tracker.css       character cards shared by the Boss Planner and Dailies
 app/mushroom.png      logo and tab icon (tools/make-logo.ps1)
 data/bosses.js        bosses, crystal prices, bundles (Ctene) and presets

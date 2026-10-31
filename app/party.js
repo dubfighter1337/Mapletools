@@ -7,7 +7,8 @@
 //   players:    { <playerId>: { name, joinedAt } }
 //   characters: { <charId>: { owner: playerId, name, cls, level, cp, updatedAt } }   cp = combat power in millions
 //   schedule:   { groups: { <groupId>: { title, reset, done, doneAt, members: ["c:<charId>" | "n:<guest name>"], createdAt } },
-//                 resets: { daily, weekly, monthly } }   start of the period each reset was last applied for
+//                 resets: { daily, weekly, monthly },    start of the period each reset was last applied for
+//                 layout: { <reset>: [groupId | "_" (empty spot) | "|" (next row), ...] } }   Arrange mode
 //   planner:    { chars: { <charId>: { sel: { <bossId>: { mode, party } }, done: { <bossId>: tickedAt }, hidden } },
 //                 presets: { <presetId>: { name, owner, sel } } }
 //   tasks:      { chars: { <charId>: { sel: { <taskId>: true }, done: { <taskId>: tickedAt | { n, at } }, hidden } },
@@ -38,7 +39,7 @@ window.Party = (function () {
       meta: d.meta || { name: fallbackName || '' },
       players: d.players || {},
       characters: d.characters || {},
-      schedule: { groups: s.groups || {}, resets: s.resets || {} },
+      schedule: { groups: s.groups || {}, resets: s.resets || {}, layout: s.layout || {} },
       planner: { chars: p.chars || {}, presets: p.presets || {} },
       tasks: { chars: t.chars || {}, custom: t.custom || {}, presets: t.presets || {} },
     };

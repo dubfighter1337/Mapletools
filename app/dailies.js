@@ -23,6 +23,7 @@
   let hideDone = Site.readJSON(HIDE_DONE_KEY, false);
   let pick = null;           // task picker while open: { cid, sel: Set of task ids }
   let savingPreset = false;  // the picker shows the "preset name" field
+  let arranging = false;     // Reorder mode for your own cards
   let tasksById = {};
 
   const myId = () => Party.me();
@@ -111,7 +112,7 @@
         </section>`;
     }).join('');
     return `
-      <article class="plan-card ${rows.length && done === rows.length ? 'is-done' : ''} ${hidden ? 'is-hidden' : ''}">
+      <article class="plan-card ${rows.length && done === rows.length ? 'is-done' : ''} ${hidden ? 'is-hidden' : ''} arr-item" data-key="${esc(c.id)}">${mine && arranging ? Arrange.grip : ''}
         <header class="plan-head">
           ${avatar}
           <div class="plan-who"><strong title="${esc(c.name)}">${esc(c.name)}</strong><span>${esc(tags)}</span></div>
@@ -179,7 +180,7 @@
 
     const ownCount = all.filter((x) => x.c.owner === myId()).length;
     $('players').innerHTML = pids.map((pid) => {
-      const list = (byPlayer[pid] || []).sort((a, b) => (Number(b.c.level) || 0) - (Number(a.c.level) || 0) || a.c.name.localeCompare(b.c.name));
+      const list = (byPlayer[pid] || []).sort((a, b) => Site.byCharOrder(a.c, b.c));
       const mine = pid === myId();
       if (!list.length && !mine) return '';
       const rows = list.flatMap((x) => x.rows);
@@ -188,14 +189,15 @@
         ? 'No characters yet. Add them on the <a href="index.html">Characters</a> page.'
         : filter === 'hidden' ? 'No hidden characters.' : filter === 'done' ? 'Nobody is finished yet.' : 'Everyone is finished.';
       return `
-        <section class="plan-player ${mine ? 'is-me' : ''}">
+        <section class="plan-player ${mine ? 'is-me' : ''} ${mine && arranging ? 'is-arranging' : ''}">
           <header class="plan-player-head">
             <h2>${esc(Party.inParty ? playerName(pid) : 'My characters')}${mine && Party.inParty ? '<span class="you">you</span>' : ''}</h2>
             ${rows.length ? `<span class="sum">${rows.filter((r) => r.done).length} / ${rows.length} tasks done</span>` : ''}
             <span class="spacer"></span>
             ${anyTicks ? '<button class="btn ghost small" data-untick-mine>Untick all</button>' : ''}
+            ${mine ? Site.reorderButtons(arranging, list.length) : ''}
           </header>
-          ${list.length ? `<div class="plan-grid">${list.map(card).join('')}</div>` : `<p class="plan-empty">${empty}</p>`}
+          ${list.length ? `<div class="plan-grid arr-row">${list.map(card).join('')}</div>` : `<p class="plan-empty">${empty}</p>`}
         </section>`;
     }).join('');
   }
@@ -371,9 +373,27 @@
     Site.toast(`Added "${name}"`);
   }
 
+  // ------------------------------------------------------------ reorder (the same order as on the Characters page)
+
+  const myOrdered = () => Object.entries(doc.characters).filter(([, c]) => c.owner === myId())
+    .map(([id, c]) => ({ id, ...c })).sort(Site.byCharOrder).map((c) => c.id);
+
+  function arrangeAction(a) {
+    if (a === 'reset') {
+      if (confirm('Put your characters back in combat power order?')) write(Site.orderUpdates(myOrdered(), null));
+      return;
+    }
+    arranging = a === 'start';
+    render();
+  }
+
   // ------------------------------------------------------------ boot
 
   function bind() {
+    Arrange.attach($('players'), {
+      block: '.plan-player', rows: '.plan-grid', items: '.plan-card',
+      onDrop: (rows) => write(Site.orderUpdates(myOrdered(), rows[0])),
+    });
     $('hide-done').addEventListener('change', (e) => { hideDone = e.target.checked; Site.writeJSON(HIDE_DONE_KEY, hideDone); render(); });
     $('filter').addEventListener('click', (e) => {
       const b = e.target.closest('[data-filter]');
@@ -383,6 +403,8 @@
       render();
     });
     $('players').addEventListener('click', (e) => {
+      const arrange = e.target.closest('[data-arrange]');
+      if (arrange) return arrangeAction(arrange.dataset.arrange);
       const t = e.target.closest('[data-tick], [data-all], [data-pick], [data-hide], [data-untick-mine]');
       if (!t) return;
       if (t.dataset.tick) { const [cid, id] = t.dataset.tick.split('|'); tick(cid, id); }
@@ -414,9 +436,9 @@
   bind();
   Party.subscribe((d) => {
     doc = d;
-    render();
+    if (!Arrange.dragging) render(); // a drop saves and redraws anyway
     if (pick && $('pick-dialog').open) renderPicker(); // a custom task or preset added while picking
   });
   Party.start();
-  setInterval(() => { if (doc) render(); }, 60 * 1000); // countdowns, and ticks expiring at a reset
+  setInterval(() => { if (doc && !Arrange.dragging) render(); }, 60 * 1000); // countdowns, and ticks expiring at a reset
 })();

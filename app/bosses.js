@@ -18,6 +18,7 @@
   let coverList = [];       // bosses shown in the dialog's "Ticks in the Boss Planner" list ("lucid:hard")
   let coverOn = new Set();  // ...and the ones ticked there
   let coversTouched = false;
+  let arranging = false;    // Arrange mode: cards are dragged into rows (the layout is shared by the party)
 
   // ------------------------------------------------------------ resets (UTC, like the game)
 
@@ -104,7 +105,7 @@
     const members = g.members || [];
     const cp = members.reduce((sum, ref) => sum + (Number(member(ref).cp) || 0), 0);
     return `
-      <article class="group-card ${g.done ? 'is-done' : ''}">
+      <article class="group-card arr-item ${g.done ? 'is-done' : ''}" data-key="${esc(g.id)}">${arranging ? Arrange.grip : ''}
         <header class="group-head">
           <button class="done-toggle" data-done="${esc(g.id)}" aria-pressed="${g.done ? 'true' : 'false'}"
             title="${g.done ? 'Done. Click to untick' : 'Mark as done'}">✓</button>
@@ -131,22 +132,57 @@
       const gs = groupsOf(s.reset);
       if (!gs.length) return '';
       const done = gs.filter((g) => g.done).length;
+      const byId = Object.fromEntries(gs.map((g) => [g.id, g]));
+      const cell = (t, ri, ci) => (t === '_'
+        ? `<div class="group-gap arr-item" data-key="_">${arranging
+          ? `${Arrange.grip}<button class="arr-x" data-gap-x="${s.reset}|${ri}|${ci}" title="Remove this empty spot" aria-label="Remove this empty spot">×</button>` : ''}</div>`
+        : groupCard(byId[t]));
+      const rows = sectionRows(s.reset, gs);
       return `
-        <section class="boss-section">
+        <section class="boss-section ${arranging ? 'is-arranging' : ''}" data-reset="${s.reset}">
           <header class="section-head">
             <h2>${s.title}</h2><span class="count">${done} / ${gs.length} done</span>
             <span class="spacer"></span>
-            ${done ? `<button class="btn ghost small" data-untick="${s.reset}">Untick all</button>` : ''}
+            ${arranging
+              ? `<span class="arrange-note">Drag cards between rows</span>${(doc.schedule.layout || {})[s.reset] ? `<button class="btn ghost small" data-reset-layout="${s.reset}">Reset layout</button>` : ''}`
+              : done ? `<button class="btn ghost small" data-untick="${s.reset}">Untick all</button>` : ''}
           </header>
-          <div class="group-grid">${gs.map(groupCard).join('')}</div>
+          ${rows.map((r, ri) => `<div class="group-grid group-row">${r.map((t, ci) => cell(t, ri, ci)).join('')}</div>${arranging
+            ? `<div class="row-tools"><button class="link-btn" data-add-gap="${s.reset}|${ri}">+ empty spot</button></div>` : ''}`).join('')}
+          ${arranging ? '<div class="group-grid group-row arr-new"></div>' : ''}
         </section>`;
     }).join('');
+  }
+
+  // ------------------------------------------------------------ layout (Arrange)
+
+  // A section's rows of group ids and "_" (empty spots), saved as one list with "|" between rows.
+  // Groups the layout doesn't have yet (new ones) go at the end of the last row.
+  function sectionRows(reset, gs) {
+    const ids = new Set(gs.map((g) => g.id));
+    const saved = (doc.schedule.layout || {})[reset];
+    const rows = [[]];
+    const placed = new Set();
+    for (const t of Object.values(saved || {})) {
+      if (t === '|') rows.push([]);
+      else if (t === '_') rows[rows.length - 1].push('_');
+      else if (ids.has(t) && !placed.has(t)) { rows[rows.length - 1].push(t); placed.add(t); }
+    }
+    rows[rows.length - 1].push(...gs.filter((g) => !placed.has(g.id)).map((g) => g.id));
+    return rows.filter((r) => r.some((t) => t !== '_'));
+  }
+
+  function saveLayout(reset, rows) {
+    const tokens = rows.filter((r) => r.length).flatMap((r, i) => (i ? ['|', ...r] : r));
+    Party.update({ [`schedule/layout/${reset}`]: tokens.length ? tokens : null }).catch((err) => Site.toast(err.message));
   }
 
   function render() {
     $('boss-sub').textContent = Party.inParty
       ? `${doc.meta.name || 'Your party'} · ${status === 'live' ? 'live, everyone sees the same schedule' : status === 'connecting' ? 'connecting…' : 'offline, changes sync when back'}`
       : 'Only on this device. Create or join a party on the Characters page to share it.';
+    $('arrange').textContent = arranging ? 'Done' : 'Arrange';
+    $('arrange').classList.toggle('primary', arranging);
     renderStats();
     renderSections();
   }
@@ -284,7 +320,25 @@
 
   function bind() {
     $('add-group').addEventListener('click', () => openGroupDialog(null));
+    $('arrange').addEventListener('click', () => { arranging = !arranging; render(); });
+    Arrange.attach($('sections'), {
+      block: '.boss-section', rows: '.group-row', items: '.arr-item',
+      onDrop: (rows, section) => saveLayout(section.dataset.reset, rows),
+    });
     $('sections').addEventListener('click', (e) => {
+      const addGap = e.target.closest('[data-add-gap]');
+      const gapX = e.target.closest('[data-gap-x]');
+      const resetLayout = e.target.closest('[data-reset-layout]');
+      if (addGap || gapX) {
+        const [reset, ri, ci] = (addGap || gapX).dataset[addGap ? 'addGap' : 'gapX'].split('|');
+        const rows = sectionRows(reset, groupsOf(reset));
+        if (addGap) rows[Number(ri)].push('_'); else rows[Number(ri)].splice(Number(ci), 1);
+        return saveLayout(reset, rows);
+      }
+      if (resetLayout) {
+        if (confirm('Put this section back in name order?')) Party.update({ [`schedule/layout/${resetLayout.dataset.resetLayout}`]: null }).catch((err) => Site.toast(err.message));
+        return;
+      }
       const done = e.target.closest('[data-done]');
       if (done) {
         const g = doc.schedule.groups[done.dataset.done];
@@ -350,7 +404,7 @@
     doc = d;
     status = s;
     applyResets();
-    render();
+    if (!Arrange.dragging) render(); // a drop saves and redraws anyway
   });
   Party.start();
   // Keep countdowns fresh and catch a reset that happens while the page is open.

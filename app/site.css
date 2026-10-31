@@ -162,6 +162,20 @@ select:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .form-section .muted { text-transform: none; letter-spacing: 0; font-weight: 400; }
 .link-btn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-size: 12px; }
 
+/* Reorder / Arrange mode (app/arrange.js): cards get a dashed outline and a ⠿ grip, their own buttons rest. */
+.arr-handle { display: none; }
+.is-arranging .arr-item { position: relative; cursor: grab; user-select: none; outline: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
+.is-arranging .arr-item * { pointer-events: none; }
+.is-arranging .arr-handle {
+  display: grid; place-items: center; position: absolute; top: 6px; right: 6px; z-index: 2; pointer-events: auto;
+  width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel);
+  color: var(--muted); font-size: 15px; cursor: grab; touch-action: none;
+}
+.is-arranging .arr-x { pointer-events: auto; }
+.arr-item.is-lifted { position: fixed; z-index: 90; margin: 0; pointer-events: none; opacity: .92; box-shadow: var(--shadow); cursor: grabbing; }
+.arr-placeholder { border: 2px dashed var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 8%, transparent); min-height: 60px; }
+.arrange-note { color: var(--muted); font-size: 12px; }
+
 /* Stat tiles at the top of a tool page. */
 .stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
 .stat {

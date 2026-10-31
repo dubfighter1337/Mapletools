@@ -84,3 +84,6 @@
 @media (max-width: 640px) {
   .plan-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Reorder: the grip takes the place of the count badge. */
+.is-arranging .plan-count { visibility: hidden; }

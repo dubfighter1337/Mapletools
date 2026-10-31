@@ -19,6 +19,7 @@
   let editingId = null;   // character open in the dialog (null = new)
   let lookedUp = null;    // lookup result for the character being added/refreshed
   let region = Site.readJSON(REGION_KEY, 'eu');
+  let arranging = false;  // Reorder mode for your own cards
 
   const myId = () => Party.me();
   const classes = () => (window.MapleData && MapleData.classList) || [];
@@ -39,8 +40,7 @@
     return Object.entries(doc.characters)
       .filter(([, c]) => c.owner === pid)
       .map(([id, c]) => ({ id, ...c }))
-      .sort((a, b) => (Number(b.cp) || 0) - (Number(a.cp) || 0) || (Number(b.conv) || 0) - (Number(a.conv) || 0)
-        || (Number(b.level) || 0) - (Number(a.level) || 0) || a.name.localeCompare(b.name));
+      .sort(Site.byCharOrder);
   }
 
   function playerOrder() {
@@ -71,7 +71,7 @@
     const cls = Site.classInfo(c.cls);
     const place = [Site.worldName(c.world), c.region ? c.region.toUpperCase() : ''].filter(Boolean).join(' · ');
     return `
-      <article class="char-card">
+      <article class="char-card arr-item" data-key="${esc(c.id)}">${mine && arranging ? Arrange.grip : ''}
         <div class="char-art">${art(c, cls)}</div>
         <strong class="char-name" title="${esc(c.name)}">${esc(c.name)}</strong>
         <div class="char-tags">
@@ -104,13 +104,13 @@
       const chars = charsOf(pid);
       if (!mine && !chars.length) return '';
       return `
-        <section class="player-block ${mine ? 'is-me' : ''}">
+        <section class="player-block ${mine ? 'is-me' : ''} ${mine && arranging ? 'is-arranging' : ''}">
           <header class="player-head">
             <h2>${esc(Party.inParty ? playerName(pid) : 'My characters')}${mine && Party.inParty ? '<span class="you">you</span>' : ''}</h2>
-            <span>${chars.length} character${chars.length === 1 ? '' : 's'}</span>
+            <div class="head-tools"><span>${chars.length} character${chars.length === 1 ? '' : 's'}</span>${mine ? Site.reorderButtons(arranging, chars.length) : ''}</div>
           </header>
           ${chars.length
-            ? `<div class="char-grid">${chars.map((c) => charCard(c, mine)).join('')}</div>`
+            ? `<div class="char-grid arr-row">${chars.map((c) => charCard(c, mine)).join('')}</div>`
             : '<p class="empty">No characters yet. Type a character name above and press <b>+</b>.</p>'}
         </section>`;
     }).join('');
@@ -317,6 +317,7 @@
     Party.update({
       [`characters/${id}`]: {
         owner: before ? before.owner : myId(),
+        order: before && Number.isFinite(before.order) ? before.order : null,
         name,
         region: $('char-region').value,
         cls: $('char-class').value || '',
@@ -480,10 +481,24 @@
       renderRegion();
     }));
     $('roster').addEventListener('click', (e) => {
+      const arrange = e.target.closest('[data-arrange]');
+      if (arrange) {
+        const a = arrange.dataset.arrange;
+        if (a === 'reset' && confirm('Put your characters back in combat power order?')) {
+          Party.update(Site.orderUpdates(charsOf(myId()).map((c) => c.id), null)).catch((err) => Site.toast(err.message));
+        }
+        if (a !== 'reset') { arranging = a === 'start'; renderRoster(); }
+        return;
+      }
       const edit = e.target.closest('[data-edit]');
       if (edit) return openCharDialog(edit.dataset.edit);
       const refresh = e.target.closest('[data-refresh]');
       if (refresh) refreshChar(refresh.dataset.refresh);
+    });
+    // Reorder: your order is shared by the Characters page, Boss Planner and Dailies.
+    Arrange.attach($('roster'), {
+      block: '.player-block', rows: '.char-grid', items: '.char-card',
+      onDrop: (rows) => Party.update(Site.orderUpdates(charsOf(myId()).map((c) => c.id), rows[0])).catch((err) => Site.toast(err.message)),
     });
     $('party').addEventListener('click', (e) => {
       const b = e.target.closest('[data-party]');
@@ -511,7 +526,7 @@
   renderTools();
   renderRegion();
   bind();
-  Party.subscribe((d, s) => { doc = d; status = s; render(); });
+  Party.subscribe((d, s) => { doc = d; status = s; if (!Arrange.dragging) render(); });
   Party.start();
 
   const joinCode = new URLSearchParams(location.search).get('join');

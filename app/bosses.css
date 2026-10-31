@@ -6,6 +6,7 @@
 .section-head .spacer { flex: 1; }
 
 .group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.group-row + .group-row, .row-tools + .group-row { margin-top: 12px; }
 .group-card {
   display: flex; flex-direction: column; border-radius: 12px; background: var(--panel);
   border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden;
@@ -62,4 +63,22 @@
 .group-covers {
   margin: 0; padding: 6px 12px 0; font-size: 11px; color: var(--muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ---------- Arrange: rows of cards with empty spots, like the sheet */
+.head-buttons { display: flex; gap: 8px; }
+.group-gap { min-height: 1px; }
+.is-arranging .group-gap { min-height: 110px; border: 2px dashed var(--line); border-radius: 12px; }
+.group-gap .arr-x { position: absolute; top: 6px; left: 8px; border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+.group-gap .arr-x:hover { color: var(--danger); }
+.is-arranging .edit-btn, .is-arranging .done-toggle { visibility: hidden; }
+.row-tools { margin-top: 4px; }
+.row-tools .link-btn { font-size: 12px; }
+.arr-new {
+  min-height: 70px; margin-top: 12px; border: 2px dashed color-mix(in srgb, var(--accent) 40%, var(--line)); border-radius: 12px;
+}
+.arr-new:empty::before { content: 'Drop a card here to start a new row'; grid-column: 1 / -1; place-self: center; color: var(--muted); font-size: 13px; }
+@media (max-width: 640px) {
+  .group-gap { display: none; }
+  .is-arranging .group-gap { display: block; }
 }

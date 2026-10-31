@@ -233,6 +233,31 @@ window.Site = (function () {
   }
   const force = (c) => symbolTotals(c && c.sym, c && c.bonus); // a character's ARC and SAC
 
+  // Character order on every page: the owner's own order (Reorder) first, otherwise strongest first by
+  // combat power, then HEXA converted, level and name. Characters added after a reorder go at the end.
+  function byCharOrder(a, b) {
+    const oa = Number.isFinite(a.order) ? a.order : Infinity;
+    const ob = Number.isFinite(b.order) ? b.order : Infinity;
+    return (oa - ob) || (Number(b.cp) || 0) - (Number(a.cp) || 0) || (Number(b.conv) || 0) - (Number(a.conv) || 0)
+      || (Number(b.level) || 0) - (Number(a.level) || 0) || String(a.name).localeCompare(String(b.name));
+  }
+
+  // The Reorder button of your own block of characters, or Reset / Done while reordering (data-arrange).
+  const reorderButtons = (on, count) => (count < 2 ? '' : on
+    ? '<span class="arrange-note">Drag your cards</span><button class="btn ghost small" data-arrange="reset">Reset to CP order</button><button class="btn primary small" data-arrange="done">Done</button>'
+    : '<button class="btn ghost small" data-arrange="start">Reorder</button>');
+
+  // Updates that save a player's new character order, or clear it (keys null: back to CP order).
+  // ids: all their characters in the current order; keys: the cards that were on screen, in their new order.
+  // Characters a filter hid keep their places.
+  function orderUpdates(ids, keys) {
+    if (!keys) return Object.fromEntries(ids.map((id) => [`characters/${id}/order`, null]));
+    const shown = new Set(keys);
+    let i = 0;
+    const merged = ids.map((id) => (shown.has(id) ? keys[i++] : id));
+    return Object.fromEntries(merged.map((id, n) => [`characters/${id}/order`, n]));
+  }
+
   // Combat power if known, otherwise the HEXA converted number.
   function powerLabel(c) {
     if (Number(c.cp)) return formatCp(c.cp);
@@ -284,6 +309,6 @@ window.Site = (function () {
 
   return {
     TOOLS, $, esc, asset, readJSON, writeJSON, partyInfo, setPartyInfo, uid, loadScript, toast, combo, formatCode, formatCp,
-    formatNumber, formatMeso, classInfo, SYMBOLS, symbolTotals, force, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
+    formatNumber, formatMeso, classInfo, SYMBOLS, symbolTotals, force, byCharOrder, reorderButtons, orderUpdates, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
   };
 })();
