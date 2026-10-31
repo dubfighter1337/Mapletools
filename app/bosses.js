@@ -162,8 +162,8 @@
   // ------------------------------------------------------------ group dialog
 
   function fillPresets() {
-    $('boss-presets').innerHTML = (MapleData.bosses || [])
-      .flatMap((b) => b.modes.map((m) => `<option value="${esc(`${m} ${b.name}`)}"></option>`)).join('');
+    Site.combo($('g-title'), (MapleData.bosses || [])
+      .flatMap((b) => b.modes.map((m) => ({ value: `${m} ${b.name}`, hint: b.reset === 'monthly' ? 'Monthly' : '' }))));
   }
 
   function guessReset(title) {

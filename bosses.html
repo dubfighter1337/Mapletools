@@ -26,8 +26,8 @@
     <form id="group-form" method="dialog">
       <h2 id="group-dialog-title">Add boss group</h2>
       <div class="fields">
-        <label class="field span-2"><span>Boss / group name</span>
-          <input id="g-title" type="text" list="boss-presets" maxlength="40" required autocomplete="off" placeholder="e.g. Normal Kalos 1"></label>
+        <div class="field span-2"><label for="g-title">Boss / group name</label>
+          <input id="g-title" type="text" maxlength="40" required autocomplete="off" placeholder="e.g. Normal Kalos 1"></div>
         <label class="field span-2"><span>Resets</span>
           <select id="g-reset">
             <option value="weekly">Weekly (Thursday 00:00 UTC)</option>
@@ -51,7 +51,6 @@
       </div>
     </form>
   </dialog>
-  <datalist id="boss-presets"></datalist>
 
   <script src="app/registry.js"></script>
   <script src="app/site.js"></script>
