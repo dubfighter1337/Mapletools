@@ -11,10 +11,9 @@
   const DETAILS = MapleData.bossDetails || {};
   const LIVE_PATCHES = Object.entries(MapleData.patches || {}).filter(([, on]) => on).map(([p]) => p);
   const CHANGES = LIVE_PATCHES.map((p) => ({ patch: p, ...((MapleData.patchBossChanges || {})[p] || {}) }));
-  // Drops nearly every boss gives: listed in one line under the ones that set a boss apart.
-  const COMMON = new Set(['power-elixir', 'sparkling-blue-star-potion', 'sparkling-red-star-potion', 'small-exp-accumulation-potion',
-    'bonus-exp-coupon', 'potential-scroll', 'advanced-potential-scroll', 'soul-enchanter', 'medal-of-honor', 'mystical-cube',
-    'hard-cube', 'solid-cube', 'spell-trace', 'home']);
+  // The drops worth showing, grouped by tools/import-boss-wiki.ps1 (everything else is left out there).
+  const DROP_GROUPS = [['gear', 'Gear'], ['sig', 'Signature'], ['box', 'Equipment boxes'], ['ring', 'Boss Ring Boxes'],
+    ['erda', 'Sol Erda'], ['whisper', 'Whisper crystals']];
   const picked = {}; // boss id -> difficulty shown on its card
   let openId = null; // boss shown in the details dialog
 
@@ -118,9 +117,6 @@
     const hp = hpOf(key);
     const price = B.price(key);
     const drops = det.drops || [];
-    const gear = drops.filter((d) => d[0] === 'equip');
-    const notable = drops.filter((d) => d[0] !== 'equip' && !COMMON.has(d[2]));
-    const common = drops.filter((d) => d[0] !== 'equip' && COMMON.has(d[2]));
     const wiki = det.wiki ? `https://maplestorywiki.net/w/${encodeURI(det.wiki.replace(/ /g, '_'))}` : '';
     $('boss-detail').innerHTML = `
       <header class="detail-head">
@@ -141,9 +137,10 @@
         <div><dt>Deaths allowed</dt><dd>${esc(det.deaths || '—')}</dd></div>
         <div><dt>Crystal</dt><dd>${Site.formatNumber(price)} <span class="steps">${[2, 3, 6].map((n) => `${n} people: ${Site.formatMeso(price / n)} each`).join(' · ')}</span></dd></div>
       </dl>
-      ${gear.length ? `<h3 class="drop-head">Gear</h3><div class="drop-grid">${gear.map(dropTile).join('')}</div>` : ''}
-      ${notable.length ? `<h3 class="drop-head">Drops</h3><div class="drop-grid">${notable.map(dropTile).join('')}</div>` : ''}
-      ${common.length ? `<p class="small muted common-drops">Also: ${common.map((d) => esc(d[1] + (d[3] ? ` ${d[3]}` : ''))).join(', ')}</p>` : ''}
+      ${DROP_GROUPS.map(([g, title]) => {
+        const list = drops.filter((d) => d[0] === g);
+        return list.length ? `<h3 class="drop-head">${title}</h3><div class="drop-grid">${list.map(dropTile).join('')}</div>` : '';
+      }).join('')}
       ${wiki ? `<p class="small"><a href="${esc(wiki)}" target="_blank" rel="noopener">More on the MapleStory Wiki ↗</a></p>` : ''}`;
     if (!$('boss-dialog').open) $('boss-dialog').showModal();
     render();

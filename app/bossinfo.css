@@ -50,7 +50,6 @@
 .drop-icon img { max-width: 30px; max-height: 30px; image-rendering: auto; }
 .drop-name { font-size: 12px; line-height: 1.25; min-width: 0; }
 .drop-name small { display: block; color: var(--muted); font-size: 11px; }
-.common-drops { margin-top: 10px; }
 
 @media (prefers-color-scheme: light) {
   .f-arc { color: #2f6fd0; }

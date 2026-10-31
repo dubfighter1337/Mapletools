@@ -94,10 +94,11 @@ the 1st of the month. The task list is `data/tasks.js`.
 
 A grid of every weekly and monthly boss with its level, HP, Force needed and crystal per difficulty; clicking a
 boss shows the rest: level per phase, entry level, Arcane steps or Sacred rule, party size, time limit, deaths
-allowed, crystal per party size, and the drops (gear first, common drops in one line). The numbers come from:
+allowed, crystal per party size, and the drops that matter: gear (signature items), the boss's own items, equipment
+boxes, Boss Ring Boxes, Sol Erda and Whisper crystals. The numbers come from:
 - `data/boss-info.js`: the party's boss info sheet (`tools\import-boss-info.ps1`).
 - `data/boss-details.js` and `data/icons/items`: the MapleStory wiki (`tools\import-boss-wiki.ps1`), Heroic
-  worlds only. Run it again after a patch to pick up new drops.
+  worlds only, and only those drops (the filter is in the script). Run it again after a patch for new drops.
 
 ## Upcoming patches
 
