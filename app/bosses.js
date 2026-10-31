@@ -67,7 +67,7 @@
   function memberTitle(ref) {
     const m = member(ref);
     if (m.guest || m.missing) return '';
-    const t = Site.symbolTotals(m.sym);
+    const t = Site.force(m);
     return [m.level ? `Lv ${m.level}` : '', m.cls ? m.cls.name : '', t.ARC ? `ARC ${t.ARC}` : '', t.SAC ? `SAC ${t.SAC}` : '']
       .filter(Boolean).join(' · ');
   }

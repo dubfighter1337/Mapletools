@@ -36,7 +36,9 @@ Type a name, pick NA or EU and press **+**. The character's level, class, world 
 Nexon's official rankings (see "Character lookup" below); then fill in **combat power** (in millions) or
 **HEXA converted** (at least one is required) and the symbol levels. ARC and SAC totals are worked out
 from the symbol levels (Arcane: 30 at level 1, +10 per level; Sacred and Grand Sacred: 10 per level; Grand
-Sacred counts toward SAC). **↻** on a card updates level, class and picture from the rankings.
+Sacred counts toward SAC), plus the optional **Bonus ARC / Bonus SAC** fields: Force from skills or titles,
+or just a total for anyone who doesn't want to fill in every symbol. **↻** on a card updates level, class and
+picture from the rankings.
 
 The lines on each card come from `CARD_ROWS` at the top of `app/roster.js`. To add a line, add a row
 there and a field in the character form (`index.html`, and `openCharDialog`/`saveChar` in `roster.js`).

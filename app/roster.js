@@ -10,8 +10,8 @@
   const CARD_ROWS = [
     { label: 'Combat power', value: (c) => Site.formatCp(c.cp) },
     { label: 'HEXA converted', value: (c) => Site.formatNumber(c.conv) },
-    { label: 'Arcane (ARC)', value: (c) => Site.formatNumber(Site.symbolTotals(c.sym).ARC), title: (c) => symbolTitle(c, 'ARC') },
-    { label: 'Sacred (SAC)', value: (c) => Site.formatNumber(Site.symbolTotals(c.sym).SAC), title: (c) => symbolTitle(c, 'SAC') },
+    { label: 'Arcane (ARC)', value: (c) => Site.formatNumber(Site.force(c).ARC), title: (c) => symbolTitle(c, 'ARC') },
+    { label: 'Sacred (SAC)', value: (c) => Site.formatNumber(Site.force(c).SAC), title: (c) => symbolTitle(c, 'SAC') },
   ];
 
   let doc = null;
@@ -56,8 +56,10 @@
   const playerName = (pid) => (doc.players[pid] && doc.players[pid].name) || 'Unknown player';
 
   function symbolTitle(c, stat) {
-    return Site.SYMBOLS.filter((s) => s.stat === stat)
-      .flatMap((s) => s.names.map((n, i) => `${n}: Lv ${((c.sym || {})[s.key] || [])[i] || 0}`)).join('\n');
+    const bonus = Number((c.bonus || {})[stat.toLowerCase()]) || 0;
+    return [...Site.SYMBOLS.filter((s) => s.stat === stat)
+      .flatMap((s) => s.names.map((n, i) => `${n}: Lv ${((c.sym || {})[s.key] || [])[i] || 0}`)),
+    ...(bonus ? [`Bonus: +${bonus}`] : [])].join('\n');
   }
 
   function art(c, cls) {
@@ -252,8 +254,14 @@
     return sym;
   }
 
+  function readBonus() {
+    const n = (id) => Math.max(0, Math.round(parseFloat($(id).value) || 0));
+    const bonus = { arc: n('char-bonus-arc'), sac: n('char-bonus-sac') };
+    return bonus.arc || bonus.sac ? bonus : null;
+  }
+
   function updateSymbolTotals() {
-    const t = Site.symbolTotals(readSymbols());
+    const t = Site.symbolTotals(readSymbols(), readBonus());
     $('sym-totals').textContent = `ARC ${t.ARC} · SAC ${t.SAC}`;
   }
 
@@ -278,6 +286,8 @@
     $('char-level').value = src.level || '';
     $('char-cp').value = c && c.cp ? c.cp : '';
     $('char-conv').value = c && c.conv ? c.conv : '';
+    $('char-bonus-arc').value = c && c.bonus && c.bonus.arc ? c.bonus.arc : '';
+    $('char-bonus-sac').value = c && c.bonus && c.bonus.sac ? c.bonus.sac : '';
     for (const s of Site.SYMBOLS) {
       s.names.forEach((n, i) => {
         const v = c && c.sym && c.sym[s.key] ? c.sym[s.key][i] : 0;
@@ -314,6 +324,7 @@
         cp: cp > 0 ? Math.round(cp * 10) / 10 : null,
         conv: conv > 0 ? conv : null,
         sym: readSymbols(),
+        bonus: readBonus(),
         img: lookedUp ? lookedUp.image || null : before ? before.img || null : null,
         world: lookedUp ? lookedUp.worldID ?? null : before ? before.world ?? null : null,
         lookedUpAt: lookedUp ? Date.now() : before ? before.lookedUpAt || null : null,
@@ -482,6 +493,7 @@
     $('char-delete').addEventListener('click', deleteChar);
     $('char-class').addEventListener('change', () => { if (!$('char-art').querySelector('.char-avatar')) setArt('', $('char-class').value); });
     $('sym-fields').addEventListener('input', updateSymbolTotals);
+    for (const id of ['char-bonus-arc', 'char-bonus-sac']) $(id).addEventListener('input', updateSymbolTotals);
     $('sym-fields').addEventListener('click', (e) => {
       const b = e.target.closest('[data-max]');
       if (!b) return;

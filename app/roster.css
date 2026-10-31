@@ -95,3 +95,7 @@
   .sym-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .region-toggle button { padding: 7px 10px; }
 }
+
+/* Bonus ARC / SAC: two short numbers, side by side on phones too. */
+.fields.bonus-fields { grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
+.fields.bonus-fields .note { grid-column: 1 / -1; margin: 0; }

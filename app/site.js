@@ -223,13 +223,15 @@ window.Site = (function () {
       names: ['Tallahart', 'Geardock'] },
   ];
 
-  function symbolTotals(sym) {
-    const totals = { ARC: 0, SAC: 0 };
+  // bonus: { arc, sac } typed in by hand on top of the symbols (skills, titles, or instead of each symbol).
+  function symbolTotals(sym, bonus) {
+    const totals = { ARC: Number(bonus && bonus.arc) || 0, SAC: Number(bonus && bonus.sac) || 0 };
     for (const s of SYMBOLS) {
       ((sym && sym[s.key]) || []).forEach((lvl) => { totals[s.stat] += s.power(Number(lvl) || 0); });
     }
     return totals;
   }
+  const force = (c) => symbolTotals(c && c.sym, c && c.bonus); // a character's ARC and SAC
 
   // Combat power if known, otherwise the HEXA converted number.
   function powerLabel(c) {
@@ -282,6 +284,6 @@ window.Site = (function () {
 
   return {
     TOOLS, $, esc, asset, readJSON, writeJSON, partyInfo, setPartyInfo, uid, loadScript, toast, combo, formatCode, formatCp,
-    formatNumber, formatMeso, classInfo, SYMBOLS, symbolTotals, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
+    formatNumber, formatMeso, classInfo, SYMBOLS, symbolTotals, force, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
   };
 })();
