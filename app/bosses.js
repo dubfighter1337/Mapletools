@@ -56,12 +56,37 @@
     return { ...c, cls: Site.classInfo(c.cls), owner: player ? player.name : '' };
   }
 
-  function memberRow(ref, withOwner) {
+  // need: the Force the group's bosses ask for (Bossing.need); the member's ARC or SAC shows next to their power.
+  function memberRow(ref, withOwner, need = {}) {
     const m = member(ref);
     const emblem = m.cls && m.cls.icon ? `<img class="class-emblem" src="${esc(m.cls.icon)}" alt="${esc(m.cls.name)}" title="${esc(m.cls.name)}">` : '<span class="class-emblem"></span>';
     return `${emblem}
       <span class="m-name" title="${esc(m.name)}">${esc(m.name)}${withOwner && m.owner && Party.inParty ? ` <span class="m-owner">${esc(m.owner)}</span>` : ''}${m.guest ? ' <span class="m-owner">guest</span>' : ''}</span>
-      <span class="m-cp">${esc(Site.powerLabel(m))}</span>`;
+      <span class="m-stats">${forceBadges(m, need)}<span class="m-cp">${esc(Site.powerLabel(m))}</span></span>`;
+  }
+
+  // ARC for Arcane bosses (Lucid to Black Mage, Ctene), SAC for Sacred ones: green with enough, red without.
+  function forceBadges(m, need) {
+    if (m.guest || m.missing) return '';
+    const have = Site.force(m);
+    return ['arc', 'sac'].filter((s) => need[s]).map((s) => {
+      const stat = s.toUpperCase();
+      const v = have[stat];
+      const req = need[s].value;
+      return `<span class="m-force ${v >= req ? 'is-ok' : 'is-low'}" title="${esc(forceTip(s, v, req, B.label(need[s].key)))}">${stat} ${v}</span>`;
+    }).join('');
+  }
+
+  // From the boss info sheet: Arcane gives 110 / 130 / 150% damage at 1.1x / 1.3x / 1.5x what's needed;
+  // Sacred gives -10% final damage per 10 short, and +5% per 10 over (up to +25% at 50 over).
+  function forceTip(s, have, req, boss) {
+    const head = `${s.toUpperCase()} ${have}: ${boss} needs ${req}`;
+    if (s === 'arc') {
+      const r = have / req;
+      return `${head}. ${r >= 1.5 ? '150%' : r >= 1.3 ? '130%' : r >= 1.1 ? '110%' : r >= 1 ? '100%' : 'Much less'} damage`;
+    }
+    const d = have - req;
+    return d >= 0 ? `${head}. ${d} over: +${Math.min(25, Math.floor(d / 10) * 5)}% final damage` : `${head}. ${-d} short: -10% final damage per 10 short`;
   }
 
   // Hover text for a member: level and symbol power (what decides if they can enter a boss).
@@ -103,6 +128,7 @@
 
   function groupCard(g) {
     const members = g.members || [];
+    const need = B.need(B.coversOf(g));
     const cp = members.reduce((sum, ref) => sum + (Number(member(ref).cp) || 0), 0);
     return `
       <article class="group-card arr-item ${g.done ? 'is-done' : ''}" data-key="${esc(g.id)}">${arranging ? Arrange.grip : ''}
@@ -115,7 +141,7 @@
         </header>
         ${coversLine(g)}
         <ul class="members">
-          ${members.length ? members.map((ref) => `<li class="${ref.startsWith('n:') ? 'is-guest' : ''}" title="${esc(memberTitle(ref))}">${memberRow(ref, true)}</li>`).join('')
+          ${members.length ? members.map((ref) => `<li class="${ref.startsWith('n:') ? 'is-guest' : ''}" title="${esc(memberTitle(ref))}">${memberRow(ref, true, need)}</li>`).join('')
             : '<li class="empty">No members yet</li>'}
         </ul>
         <footer class="group-foot"><span>${members.length} / ${MAX_MEMBERS}</span><span>${cp ? `${esc(Site.formatCp(cp))} total` : ''}</span></footer>
@@ -194,7 +220,6 @@
       ...B.BUNDLES.map((x) => ({ value: x.name, hint: `${x.bosses.length} bosses` })),
       ...B.allKeys().map((k) => ({ value: B.label(k), hint: B.resetOf(B.parse(k).id) === 'monthly' ? 'Monthly' : '' })),
     ]);
-    Site.combo($('g-cover-add'), B.allKeys().map((k) => B.label(k)));
   }
 
   function guessReset(title) {
@@ -209,32 +234,26 @@
     renderCovers();
   }
 
+  // One boss per group, taken from its name. Only a bundle (Ctene) lists several, as checkboxes.
   function renderCovers() {
     const bundle = B.bundleFor($('g-title').value);
-    $('g-covers').innerHTML = coverList.map((k) => {
-      return `<label class="cover-chip ${coverOn.has(k) ? 'is-on' : ''}"><input type="checkbox" data-cover="${esc(k)}" ${coverOn.has(k) ? 'checked' : ''}>${
-        B.iconImg(B.parse(k).id)}${esc(B.label(k))}</label>`;
-    }).join('');
-    $('g-covers-note').textContent = bundle && coverList.length > 1
-      ? `· untick the ones this group doesn't do`
-      : coverList.length ? '' : '· pick a boss as the name, or add bosses below';
+    $('g-covers').innerHTML = bundle
+      ? coverList.map((k) => `<label class="cover-chip ${coverOn.has(k) ? 'is-on' : ''}"><input type="checkbox" data-cover="${esc(k)}" ${coverOn.has(k) ? 'checked' : ''}>${
+        B.iconImg(B.parse(k).id)}${esc(B.label(k))}</label>`).join('')
+      : coverList.slice(0, 1).map((k) => `<span class="cover-chip is-on">${B.iconImg(B.parse(k).id)}${esc(B.label(k))}</span>`).join('');
+    $('g-covers-note').textContent = bundle ? '· untick the ones this group doesn\'t do'
+      : coverList.length ? '' : '· pick a boss from the list as the name';
+    if ($('group-dialog').open) renderDraft(); // the members' ARC / SAC follow the bosses
   }
 
-  function addCover(text) {
-    const key = B.allKeys().find((k) => B.label(k).toLowerCase() === text.trim().toLowerCase());
-    if (!key) return false;
-    if (!coverList.includes(key)) coverList.push(key);
-    coverOn.add(key);
-    coversTouched = true;
-    $('g-cover-add').value = '';
-    renderCovers();
-    return true;
-  }
+  // The bosses the group in the dialog clears.
+  const draftCovers = () => (B.bundleFor($('g-title').value) ? coverList.filter((k) => coverOn.has(k)) : coverList.slice(0, 1));
 
   function renderDraft() {
     $('g-count').textContent = `(${draft.length}/${MAX_MEMBERS})`;
+    const need = B.need(draftCovers());
     $('g-members').innerHTML = draft.map((ref, i) => `
-      <li class="${ref.startsWith('n:') ? 'is-guest' : ''}">${memberRow(ref, true)}
+      <li class="${ref.startsWith('n:') ? 'is-guest' : ''}">${memberRow(ref, true, need)}
         <button type="button" class="remove" data-remove="${i}" aria-label="Remove">×</button></li>`).join('')
       || '<li class="muted" style="grid-template-columns:1fr">Nobody yet. Add characters below.</li>';
 
@@ -267,12 +286,12 @@
     $('g-reset').value = g ? g.reset || 'weekly' : 'weekly';
     resetTouched = !!g;
     draft = g ? [...(g.members || [])] : [];
-    // A bundle group lists every boss of the bundle, so a boss left out can be ticked again.
-    coversTouched = !!g;
-    coverList = g ? [...new Set([...B.guessCovers(g.title), ...B.coversOf(g)])] : [];
-    coverOn = new Set(g ? B.coversOf(g) : []);
+    // A Ctene group lists every Ctene boss, so one left out can be ticked again; others have one boss.
+    const bundle = g && B.bundleFor(g.title);
+    coversTouched = !!bundle;
+    coverList = !g ? [] : bundle ? [...new Set([...B.guessCovers(g.title), ...B.coversOf(g)])] : B.guessCovers(g.title);
+    coverOn = new Set(!g ? [] : bundle ? B.coversOf(g) : coverList);
     renderCovers();
-    $('g-cover-add').value = '';
     $('g-guest').value = '';
     $('g-delete').hidden = !g;
     renderDraft();
@@ -294,7 +313,7 @@
     if (!title) return;
     const id = editingId || Site.uid('g');
     const before = editingId ? doc.schedule.groups[editingId] : null;
-    const covers = coverList.filter((k) => coverOn.has(k));
+    const covers = draftCovers();
     Party.update({
       [`schedule/groups/${id}`]: {
         title: title.slice(0, 40),
@@ -365,7 +384,7 @@
     $('g-delete').addEventListener('click', deleteGroup);
     $('g-title').addEventListener('input', () => {
       if (!resetTouched) $('g-reset').value = guessReset($('g-title').value);
-      if (!coversTouched) coversFromTitle();
+      if (!coversTouched || !B.bundleFor($('g-title').value)) coversFromTitle();
     });
     $('g-covers').addEventListener('change', (e) => {
       const k = e.target.dataset.cover;
@@ -373,14 +392,6 @@
       if (e.target.checked) coverOn.add(k); else coverOn.delete(k);
       coversTouched = true;
       renderCovers();
-    });
-    // A pick from the suggestion list comes in as a script-made 'input' event; typed text is added on Enter.
-    $('g-cover-add').addEventListener('input', (e) => { if (!e.isTrusted) addCover(e.target.value); });
-    $('g-cover-add').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.target.value.trim()) {
-        e.preventDefault();
-        if (!addCover(e.target.value)) Site.toast('Pick a boss from the list');
-      }
     });
     $('g-reset').addEventListener('change', () => { resetTouched = true; });
     $('g-add-char').addEventListener('change', (e) => {

@@ -62,10 +62,12 @@ there and a field in the character form (`index.html`, and `openCharDialog`/`sav
 
 ## Boss Schedule and Boss Planner
 
-A schedule group has a name, a reset, up to 6 members, and the bosses it clears ("Ticks in the Boss
-Planner"). Naming a group after a boss (`Hard Lucid 2`, `HLucid`, `C Gloom`) links that boss. Naming it
-after a bundle (`Ctene ...`) lists the bundle's bosses as checkboxes: untick the ones that group doesn't
-do (for example Lotus and Damien when those are soloed), or add more with "+ Add a boss".
+A schedule group has a name, a reset, up to 6 members, and one boss (from its name: `Hard Lucid 2`,
+`HLucid`, `C Gloom`). Only a bundle (`Ctene ...`) clears several: its bosses show as checkboxes, so a group
+that doesn't do one of them (Lotus and Damien when those are soloed) can untick it. Members show their ARC
+for Arcane bosses and SAC for Sacred ones next to their power: green with enough Force, red without
+(hover for the damage effect). The requirements come from the boss info sheet: run
+`toolsimport-boss-info.ps1` after it changes (writes `data/boss-info.js`).
 
 When a group is ticked in the schedule, those bosses are ticked in the Boss Planner for every member
 character, and the group's member count is used as the party size (the crystal's value is split). In the
@@ -285,6 +287,7 @@ app/mushroom.png      logo and tab icon (tools/make-logo.ps1)
 data/bosses.js        bosses, crystal prices, bundles (Ctene) and presets
 data/tasks.js         the Dailies task list
 data/patches.js       upcoming patch switches (v272)
+data/boss-info.js     boss level, HP and Force needed per difficulty (from the boss info sheet)
 database.rules.json   Firebase Realtime Database rules
 tools/lookup-relay.gs  character lookup relay (Google Apps Script)
 data/hexa-costs.js    HEXA cost tables
@@ -298,6 +301,7 @@ tools/lib/              shared helpers (xlsx reader, class file writer)
 tools/serve.ps1       optional local web server (http://localhost:8765)
 tools/bump-version.ps1  new ?v= stamp on the pages' links (run before publishing)
 tools/make-logo.ps1   mushroom picture -> teal logo
+tools/import-boss-info.ps1  boss info sheet -> data/boss-info.js (level, HP, ARC / SAC needed)
 tools/fetch-wiki-icons.ps1  wiki -> boss and symbol icons (data/icons/bosses, data/icons/symbols)
 ```
 

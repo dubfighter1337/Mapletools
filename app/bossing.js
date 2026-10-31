@@ -110,7 +110,24 @@ window.Bossing = (function () {
     return out;
   }
 
+  // The Force a list of bosses ("lucid:hard") asks for, from data/boss-info.js: the highest Arcane and the
+  // highest Sacred, with the boss that asks it. { arc: { value, key }, sac: { value, key } }
+  function need(keys) {
+    const info = MapleData.bossInfo || {};
+    const out = {};
+    for (const k of keys) {
+      const b = info[k];
+      if (!b) continue;
+      for (const s of ['arc', 'sac']) {
+        const v = Array.isArray(b[s]) ? Math.max(...b[s]) : b[s];
+        if (v && (!out[s] || v > out[s].value)) out[s] = { value: v, key: k };
+      }
+    }
+    return out;
+  }
+
   return {
+    need,
     periodStart, nextReset, untilText, localTime,
     BOSSES, BUNDLES, byId, resetOf, icon, iconImg, modeName, parse, keyOf, label, price, allKeys,
     bundleFor, guessCovers, coversOf, scheduleLinks,

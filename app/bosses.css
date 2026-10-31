@@ -57,7 +57,8 @@
   display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--panel-2); font-size: 12px; color: var(--muted); cursor: pointer;
 }
-.cover-chip input { margin: 0; accent-color: var(--accent); }
+.cover-chip input { margin: 0; accent-color: var(--accent); width: auto; flex: none; }
+span.cover-chip { cursor: default; }
 .cover-chip .boss-icon { width: 18px; height: 18px; border-radius: 50%; }
 .cover-chip.is-on { color: var(--text); border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
 .group-covers {
@@ -82,3 +83,9 @@
   .group-gap { display: none; }
   .is-arranging .group-gap { display: block; }
 }
+
+/* Members' ARC / SAC for the group's bosses: green with enough, red without (hover for the details). */
+.m-stats { display: inline-flex; align-items: center; gap: 8px; }
+.m-force { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-force.is-ok { color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
+.m-force.is-low { color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, transparent); }
