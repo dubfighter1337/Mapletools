@@ -66,8 +66,8 @@ A schedule group has a name, a reset, up to 6 members, and one boss (from its na
 `HLucid`, `C Gloom`). Only a bundle (`Ctene ...`) clears several: its bosses show as checkboxes, so a group
 that doesn't do one of them (Lotus and Damien when those are soloed) can untick it. Members show their ARC
 for Arcane bosses and SAC for Sacred ones next to their power: green with enough Force, red without
-(hover for the damage effect). The requirements come from the boss info sheet: run
-`toolsimport-boss-info.ps1` after it changes (writes `data/boss-info.js`).
+with the extra damage (Arcane +10 / +30 / +50%, Sacred up to +25%; hover for details). The requirements come from the boss info sheet: run
+`tools\import-boss-info.ps1` after it changes (writes `data/boss-info.js`).
 
 When a group is ticked in the schedule, those bosses are ticked in the Boss Planner for every member
 character, and the group's member count is used as the party size (the crystal's value is split). In the

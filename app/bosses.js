@@ -73,20 +73,28 @@
       const stat = s.toUpperCase();
       const v = have[stat];
       const req = need[s].value;
-      return `<span class="m-force ${v >= req ? 'is-ok' : 'is-low'}" title="${esc(forceTip(s, v, req, B.label(need[s].key)))}">${stat} ${v}</span>`;
+      const extra = forceBonus(s, v, req);
+      return `<span class="m-force ${v >= req ? 'is-ok' : 'is-low'}" title="${esc(forceTip(s, v, req, B.label(need[s].key)))}">${stat} ${v}${
+        extra > 0 ? ` <b>+${extra}%</b>` : ''}</span>`;
     }).join('');
   }
 
-  // From the boss info sheet: Arcane gives 110 / 130 / 150% damage at 1.1x / 1.3x / 1.5x what's needed;
-  // Sacred gives -10% final damage per 10 short, and +5% per 10 over (up to +25% at 50 over).
+  // Extra damage (%) for having more Force than needed, from the boss info sheet: Arcane +10 / +30 / +50%
+  // at 1.1x / 1.3x / 1.5x what's needed; Sacred +5% final damage per 10 over, up to +25% at 50 over.
+  // Below what's needed: null (Sacred loses 10% final damage per 10 short).
+  function forceBonus(s, have, req) {
+    if (have < req) return null;
+    if (s === 'arc') return have >= req * 1.5 ? 50 : have >= req * 1.3 ? 30 : have >= req * 1.1 ? 10 : 0;
+    return Math.min(25, Math.floor((have - req) / 10) * 5);
+  }
+
   function forceTip(s, have, req, boss) {
     const head = `${s.toUpperCase()} ${have}: ${boss} needs ${req}`;
-    if (s === 'arc') {
-      const r = have / req;
-      return `${head}. ${r >= 1.5 ? '150%' : r >= 1.3 ? '130%' : r >= 1.1 ? '110%' : r >= 1 ? '100%' : 'Much less'} damage`;
-    }
-    const d = have - req;
-    return d >= 0 ? `${head}. ${d} over: +${Math.min(25, Math.floor(d / 10) * 5)}% final damage` : `${head}. ${-d} short: -10% final damage per 10 short`;
+    const extra = forceBonus(s, have, req);
+    if (extra === null) return s === 'arc' ? `${head}. Below it you deal much less damage` : `${head}. ${req - have} short: -10% final damage per 10 short`;
+    return `${head}. ${extra ? `+${extra}% ${s === 'arc' ? 'damage' : 'final damage'}` : 'Enough, no extra damage yet'}${
+      s === 'arc' && extra < 50 ? ` (next step at ${Math.ceil(req * (extra >= 30 ? 1.5 : extra >= 10 ? 1.3 : 1.1))})` : ''}${
+      s === 'sac' && extra < 25 ? ` (+5% per 10 over, up to +25% at ${req + 50})` : ''}`;
   }
 
   // Hover text for a member: level and symbol power (what decides if they can enter a boss).
