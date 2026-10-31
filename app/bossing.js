@@ -144,8 +144,20 @@ window.Bossing = (function () {
     return have >= d ? 50 : have >= c ? 30 : have >= a ? 10 : 0;
   }
 
+  // The Sacred / Grand Sacred symbol whose max level gives +20% damage on a boss (data/bosses.js: symbol),
+  // with how far a character has it: { name, icon, level, max, maxed }.
+  const SYMBOL_BONUS = 20;
+  function symbolFor(id, c) {
+    const b = byId[id];
+    const s = b && b.symbol && Site.SYMBOLS.find((x) => x.key === b.symbol[0]);
+    if (!s) return null;
+    const name = s.names[b.symbol[1]];
+    const level = Number((((c && c.sym) || {})[s.key] || [])[b.symbol[1]]) || 0;
+    return { name, icon: `data/icons/symbols/${name.toLowerCase().replace(/[^a-z]+/g, '_')}.png`, level, max: s.max, maxed: level >= s.max };
+  }
+
   return {
-    need, arcSteps, forceBonus,
+    need, arcSteps, forceBonus, symbolFor, SYMBOL_BONUS,
     periodStart, nextReset, untilText, localTime,
     BOSSES, BUNDLES, byId, resetOf, icon, iconImg, modeName, parse, keyOf, label, price, allKeys,
     bundleFor, guessCovers, coversOf, scheduleLinks,

@@ -92,8 +92,10 @@
     }
     if (b.sac) {
       const max = Array.isArray(b.sac) ? Math.max(...b.sac) : b.sac;
+      const sym = B.symbolFor(B.parse(key).id, null);
       return `<div><dt>Sacred Force</dt><dd><b class="f-sac">SAC ${phases(b.sac) ? esc(byPhase(b.sac)) : max}</b>
-        <span class="steps">+5% final damage per 10 over, up to +25% at ${max + 50}; -10% per 10 short</span></dd></div>`;
+        <span class="steps">+5% final damage per 10 over, up to +25% at ${max + 50}; -10% per 10 short</span>${sym
+          ? `<span class="steps"><img class="sym-icon" src="${esc(sym.icon)}" alt=""> Maxed ${esc(sym.name)} symbol (Lv ${sym.max}): +${B.SYMBOL_BONUS}% damage</span>` : ''}</dd></div>`;
     }
     return '';
   }

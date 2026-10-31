@@ -4,16 +4,17 @@
 // Used by the Boss Schedule's name suggestions and by the Boss Planner.
 // To add a boss or a difficulty, add it here. id is used in saved data, so don't rename one.
 // aliases: other names people use in group names ("BM"). Icons: data/icons/bosses/<id>.png (tools/fetch-wiki-icons.ps1).
+// symbol: [symbol, index] in Site.SYMBOLS whose max level gives +20% damage on this boss (Cernium: Seren, ...).
 MapleData.bosses = [
   { id: 'black_mage', name: 'Black Mage', reset: 'monthly', aliases: ['BM'], modes: { Hard: 4500000000, Extreme: 18000000000 } },
-  { id: 'jupiter', name: 'Jupiter', modes: { Normal: 2965000000, Hard: 5953000000 } },
-  { id: 'kaling', name: 'Kaling', modes: { Easy: 1031250000, Normal: 1506500000, Hard: 2990000000, Extreme: 6026000000 } },
-  { id: 'first_adversary', name: 'First Adversary', aliases: ['Adversary'], modes: { Easy: 985000000, Normal: 1365000000, Hard: 2940000000, Extreme: 5880000000 } },
-  { id: 'kalos', name: 'Kalos', aliases: ['Kalos the Guardian'], modes: { Easy: 937500000, Normal: 1300000000, Chaos: 2600000000, Extreme: 5200000000 } },
-  { id: 'seren', name: 'Seren', aliases: ['Chosen Seren'], modes: { Normal: 889021875, Hard: 1096562500, Extreme: 4235000000 } },
-  { id: 'baldrix', name: 'Baldrix', modes: { Normal: 2800000000, Hard: 4200000000 } },
-  { id: 'malefic_star', name: 'Malefic Star', modes: { Normal: 1452000000, Hard: 3990000000 } },
-  { id: 'limbo', name: 'Limbo', modes: { Normal: 2100000000, Hard: 3745000000 } },
+  { id: 'jupiter', name: 'Jupiter', symbol: ['gsac', 1], modes: { Normal: 2965000000, Hard: 5953000000 } },
+  { id: 'kaling', name: 'Kaling', symbol: ['sac', 3], modes: { Easy: 1031250000, Normal: 1506500000, Hard: 2990000000, Extreme: 6026000000 } },
+  { id: 'first_adversary', name: 'First Adversary', symbol: ['sac', 2], aliases: ['Adversary'], modes: { Easy: 985000000, Normal: 1365000000, Hard: 2940000000, Extreme: 5880000000 } },
+  { id: 'kalos', name: 'Kalos', symbol: ['sac', 1], aliases: ['Kalos the Guardian'], modes: { Easy: 937500000, Normal: 1300000000, Chaos: 2600000000, Extreme: 5200000000 } },
+  { id: 'seren', name: 'Seren', symbol: ['sac', 0], aliases: ['Chosen Seren'], modes: { Normal: 889021875, Hard: 1096562500, Extreme: 4235000000 } },
+  { id: 'baldrix', name: 'Baldrix', symbol: ['gsac', 0], modes: { Normal: 2800000000, Hard: 4200000000 } },
+  { id: 'malefic_star', name: 'Malefic Star', symbol: ['sac', 4], modes: { Normal: 1452000000, Hard: 3990000000 } },
+  { id: 'limbo', name: 'Limbo', symbol: ['sac', 5], modes: { Normal: 2100000000, Hard: 3745000000 } },
   { id: 'lotus', name: 'Lotus', modes: { Normal: 162562500, Hard: 444675000, Extreme: 1397500000 } },
   { id: 'verus_hilla', name: 'Verus Hilla', aliases: ['VHilla'], modes: { Normal: 581880000, Hard: 762105000 } },
   { id: 'darknell', name: 'Darknell', modes: { Normal: 316875000, Hard: 667920000 } },

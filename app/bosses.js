@@ -73,20 +73,27 @@
       const stat = s.toUpperCase();
       const v = have[stat];
       const req = need[s].value;
-      const extra = B.forceBonus(s, v, need[s].key);
-      return `<span class="m-force ${v >= req ? 'is-ok' : 'is-low'}" title="${esc(forceTip(s, v, req, need[s].key))}">${stat} ${v}${
-        extra > 0 ? ` <b>+${extra}%</b>` : ''}</span>`;
+      const key = need[s].key;
+      // A maxed region symbol (Cernium for Seren, ...) adds +20% damage on top: its icon marks the badge.
+      const sym = s === 'sac' ? B.symbolFor(B.parse(key).id, m) : null;
+      const extra = B.forceBonus(s, v, key);
+      const total = extra === null ? null : extra + (sym && sym.maxed ? B.SYMBOL_BONUS : 0);
+      return `<span class="m-force ${v >= req ? 'is-ok' : 'is-low'}" title="${esc(forceTip(s, v, req, key, sym))}">${
+        sym && sym.maxed ? `<img class="m-sym" src="${esc(sym.icon)}" alt="">` : ''}${stat} ${v}${total > 0 ? ` <b>+${total}%</b>` : ''}</span>`;
     }).join('');
   }
 
-  function forceTip(s, have, req, key) {
+  function forceTip(s, have, req, key, sym) {
     const head = `${s.toUpperCase()} ${have}: ${B.label(key)} needs ${req}`;
     const extra = B.forceBonus(s, have, key);
-    if (extra === null) return s === 'arc' ? `${head}. Below it you deal much less damage` : `${head}. ${req - have} short: -10% final damage per 10 short`;
+    const symLine = !sym ? '' : sym.maxed
+      ? `\nMaxed ${sym.name} symbol: +${B.SYMBOL_BONUS}% damage on this boss`
+      : `\n${sym.name} symbol Lv ${sym.level}/${sym.max}: +${B.SYMBOL_BONUS}% damage on this boss once it's maxed`;
+    if (extra === null) return (s === 'arc' ? `${head}. Below it you deal much less damage` : `${head}. ${req - have} short: -10% final damage per 10 short`) + symLine;
     const next = B.arcSteps(key)[extra >= 30 ? 2 : extra >= 10 ? 1 : 0];
     return `${head}. ${extra ? `+${extra}% ${s === 'arc' ? 'damage' : 'final damage'}` : 'Enough, no extra damage yet'}${
       s === 'arc' && extra < 50 ? ` (next step at ${next})` : ''}${
-      s === 'sac' && extra < 25 ? ` (+5% per 10 over, up to +25% at ${req + 50})` : ''}`;
+      s === 'sac' && extra < 25 ? ` (+5% per 10 over, up to +25% at ${req + 50})` : ''}${symLine}`;
   }
 
   // Hover text for a member: level and symbol power (what decides if they can enter a boss).
