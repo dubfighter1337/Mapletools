@@ -30,6 +30,16 @@ them, paste the file into Firebase console → Realtime Database → Rules → P
 
 The HEXA Planner is personal: its levels stay in your browser and are not shared with the party.
 
+### Your devices and backup
+
+The **Your devices** card on the Characters page (`app/devices.js`):
+- **Show QR code / Copy link**: a link with your party code and player id (`index.html?device=CODE.PLAYERID`).
+  Scanning it on a phone opens MapleTools as you in your party, so phone and PC stay in sync. Without a party,
+  **Sync with my phone** first makes a party of your own (with your characters in it) and then shows the code.
+- **Copy backup / Restore backup**: your characters with their Boss Planner and Dailies picks, your custom
+  tasks and presets as one piece of text (`MT1.` + compressed JSON). Restoring makes them yours in the
+  current party or on this device; a character with the same name is replaced instead of duplicated.
+
 ## Characters
 
 Type a name, pick NA or EU and press **+**. The character's level, class, world and picture come from
@@ -261,6 +271,7 @@ app/party.js          party data (local, or live via Firebase)
 app/bossing.js        boss helpers shared by the schedule and planner (resets, which bosses a group clears)
 app/config.js         Firebase config + character lookup relay URL
 app/roster.*, hexa.*, bosses.*, planner.*, dailies.*   one script + stylesheet per page
+app/devices.js        Characters page: QR code / device link and backup
 app/tracker.css       character cards shared by the Boss Planner and Dailies
 app/mushroom.png      logo and tab icon (tools/make-logo.ps1)
 data/bosses.js        bosses, crystal prices, bundles (Ctene) and presets

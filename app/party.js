@@ -178,7 +178,8 @@ window.Party = (function () {
     return s.exists() && s.val().meta ? normalize(s.val()) : null;
   }
 
-  // Join as an existing player (playerId) or as a new one (newName).
+  // Join as an existing player (playerId: another device of theirs) or as a new one (newName).
+  // bringLocal adds this device's own characters to that player.
   async function join(code, { playerId, newName, bringLocal }) {
     code = cleanCode(code);
     const db = await firebaseDb();
@@ -191,6 +192,8 @@ window.Party = (function () {
         [`players/${pid}`]: { name: newName, joinedAt: Date.now() },
         ...(bringLocal ? localDataFor(pid, false) : {}),
       });
+    } else if (bringLocal && Object.keys(localDoc().characters).length) {
+      await db.ref(`parties/${code}`).update(localDataFor(pid, false));
     }
     Site.setPartyInfo({ code, name: meta.name, playerId: pid });
   }

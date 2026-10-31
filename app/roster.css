@@ -99,3 +99,18 @@
 /* Bonus ARC / SAC: two short numbers, side by side on phones too. */
 .fields.bonus-fields { grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
 .fields.bonus-fields .note { grid-column: 1 / -1; margin: 0; }
+
+/* ---------- your devices (QR code / link) and backup: app/devices.js */
+.qr-box {
+  width: min(240px, 70vw); margin: 12px auto; padding: 10px; border-radius: 12px; background: #fff;
+  display: grid; place-items: center; min-height: 120px;
+}
+.qr-box svg { width: 100%; height: auto; display: block; }
+.device-link { display: flex; gap: 8px; align-items: center; }
+.device-link input { flex: 1; min-width: 0; font-size: 12px; color: var(--muted); }
+.backup-text {
+  width: 100%; box-sizing: border-box; margin: 8px 0 0; padding: 8px 10px; border-radius: 9px; resize: vertical;
+  background: var(--panel); border: 1px solid var(--line); color: var(--text); font: 12px/1.4 ui-monospace, Consolas, monospace;
+  word-break: break-all;
+}
+.restore-list { margin: 6px 0; }
