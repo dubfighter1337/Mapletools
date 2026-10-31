@@ -785,8 +785,8 @@
   }
 
   async function boot() {
-    // Your own starting levels; this file is optional and kept out of the shared (GitHub) copy.
-    await loadScript('data/my-levels.js');
+    // Your own starting levels: only on your own PC (the file is kept out of the shared GitHub copy).
+    if (location.protocol === 'file:' || location.hostname === 'localhost') await loadScript('data/my-levels.js');
     const results = await Promise.all(D.classFiles.map((id) => loadScript(`data/classes/${id}.js`).then((ok) => ({ id, ok }))));
     const failed = results.filter((r) => !r.ok).map((r) => r.id);
     if (failed.length) {
