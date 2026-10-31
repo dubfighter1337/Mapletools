@@ -143,7 +143,7 @@
         <div><dt>Party</dt><dd>${esc(det.party || '—')}</dd></div>
         <div><dt>Time limit</dt><dd>${esc(timeOf(key) || '—')}</dd></div>
         <div><dt>Deaths allowed</dt><dd>${esc(det.deaths || '—')}</dd></div>
-        <div><dt>Crystal</dt><dd>${Site.formatNumber(price)} <span class="steps">${[2, 3, 6].map((n) => `${n} people: ${Site.formatMeso(price / n)} each`).join(' · ')}</span></dd></div>
+        <div><dt>Crystal</dt><dd>${Site.formatNumber(price)} <span class="steps">${[2, 3, 6].filter((n) => n <= B.maxParty(key)).map((n) => `${n} people: ${Site.formatMeso(price / n)} each`).join(' · ')}</span></dd></div>
       </dl>
       ${DROP_GROUPS.map(([g, title]) => {
         const list = drops.filter((d) => d[0] === g);

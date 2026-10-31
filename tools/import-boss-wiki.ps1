@@ -99,6 +99,7 @@ function Drops([string]$block) {
 }
 
 $lines = @()
+$partyLines = @()   # data/boss-party.js: the most players per difficulty
 $items = @{}   # icon name (slug of the item's name) -> @{ name; page; field }
 foreach ($id in $Pages.Keys) {
   $title = $Pages[$id]
@@ -113,6 +114,7 @@ foreach ($id in $Pages.Keys) {
     $end = if ($i + 1 -lt $heads.Count) { $heads[$i + 1].Index } else { $w.Length }
     $sections += , @($heads[$i].Groups[2].Value, $w.Substring($start, $end - $start))
   }
+  $sizes = @()
   foreach ($mode in @($modes[$id])) {
     $n = $Code[$mode.ToLower()]
     # The difficulty's drops are in its last monster box: the "Reward" one when there is one.
@@ -132,7 +134,11 @@ foreach ($id in $Pages.Keys) {
     ) -join ', '
     $lines += "  '$id`:$($mode.ToLower())': { $info, wiki: $(Js $title),"
     $lines += "    drops: [$dropJs] },"
+    # "1 - 3" -> 3
+    if ((Infobox $w 'partySize' $n) -match '(\d+)\s*$') { $sizes += "$($mode.ToLower()): $($Matches[1])" }
+    else { Write-Warning "$id $mode`: no party size" }
   }
+  if ($sizes.Count) { $partyLines += "  $id`: { $($sizes -join ', ') }," }
   Write-Host "$id ok"
 }
 
@@ -197,3 +203,14 @@ $out = @(
 )
 [IO.File]::WriteAllText((Join-Path $Root 'data/boss-details.js'), ($out -join "`n") + "`n", (New-Object Text.UTF8Encoding $false))
 Write-Host "data/boss-details.js: $($lines.Count / 2) boss difficulties, $($items.Count) different drops"
+
+# The party size limits on their own, small enough for the Boss Schedule and Boss Planner to load.
+$out = @(
+  '// The most players per boss difficulty, from the MapleStory wiki (tools/import-boss-wiki.ps1 writes this file).'
+  '// Used by the Boss Schedule (group size), the Boss Planner (crystal split) and Boss Info.'
+  'MapleData.bossParty = {'
+  $partyLines
+  '};'
+)
+[IO.File]::WriteAllText((Join-Path $Root 'data/boss-party.js'), ($out -join "`n") + "`n", (New-Object Text.UTF8Encoding $false))
+Write-Host "data/boss-party.js: $($partyLines.Count) bosses"

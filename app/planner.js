@@ -8,7 +8,6 @@
   const B = Bossing;
   const CHAR_LIMIT = 14;   // weekly-boss crystals one character can sell a week
   const WORLD_LIMIT = 180; // crystals one account can sell per world a week: weekly, monthly (and daily) bosses
-  const MAX_PARTY = 6;
   const FILTER_KEY = 'mapletools-planner-filter';
   const LINK_ICON = '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">'
     + '<path d="M6.5 9.5l3-3"/><path d="M7 4.5l1.2-1.2a2.6 2.6 0 0 1 3.7 3.7L10.7 8.2"/><path d="M9 11.5l-1.2 1.2a2.6 2.6 0 0 1-3.7-3.7L5.3 7.8"/></svg>';
@@ -40,10 +39,10 @@
       if (!boss) continue;
       const s = sel[id], l = link[id];
       const mode = l ? l.mode : B.modeName(boss, s.mode) || Object.keys(boss.modes)[0];
-      const party = Math.min(MAX_PARTY, Math.max(1, l ? l.party : Number(s.party) || 1));
+      const key = B.keyOf(id, mode);
+      const party = Math.min(B.maxParty(key), Math.max(1, l ? l.party : Number(s.party) || 1));
       const reset = boss.reset || 'weekly';
       const manual = (ticks[id] || 0) >= B.periodStart(reset);
-      const key = B.keyOf(id, mode);
       rows.push({
         id, boss, mode, party, reset, link: l || null, manual,
         done: manual || !!(l && l.done),
@@ -250,11 +249,13 @@
   }
 
   // A boss in the picker: from a Boss Schedule group the character is in (fixed here), or picked.
+  // The party is never bigger than the difficulty allows.
+  const partyFor = (id, mode, n) => Math.min(B.maxParty(B.keyOf(id, mode)), Math.max(1, Number(n) || 1));
   function picked(id) {
     const l = pick.link[id];
-    if (l) return { mode: l.mode, party: Math.max(1, l.party), link: l };
+    if (l) return { mode: l.mode, party: partyFor(id, l.mode, l.party), link: l };
     const s = pick.sel[id];
-    return s ? { mode: s.mode, party: Math.max(1, s.party || 1) } : null;
+    return s ? { mode: s.mode, party: partyFor(id, s.mode, s.party) } : null;
   }
   const pickedIds = () => [...new Set([...Object.keys(pick.sel), ...Object.keys(pick.link)])].filter((id) => B.byId[id]);
   const weeklyPicked = () => pickedIds().filter((id) => B.resetOf(id) === 'weekly').length;
@@ -290,6 +291,7 @@
     const modes = Object.keys(b.modes);
     const mode = (s && B.modeName(b, s.mode)) || modes[0];
     const party = s ? s.party : 1;
+    const max = B.maxParty(B.keyOf(b.id, mode));
     const off = linked ? 'disabled' : '';
     const tag = linked
       ? `<span class="pick-tag" title="${esc(`In the Boss Schedule: ${s.link.title} (${s.link.party} in the group). Change it there.`)}">${LINK_ICON} Schedule</span>` : '';
@@ -298,8 +300,8 @@
         <label class="pick-name"><input type="checkbox" data-on ${s ? 'checked' : ''} ${off}>${bossIcon(b.id)}<span>${esc(b.name)}</span>${tag}</label>
         <span class="pick-ctrl">
           <select data-mode aria-label="${esc(b.name)} difficulty" ${off}>${modes.map((m) => `<option value="${esc(m.toLowerCase())}" ${m === mode ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
-          <span class="stepper" title="Party size (splits the crystal's value)">
-            <button type="button" data-party="-1" aria-label="Smaller party" ${party <= 1 || linked ? 'disabled' : ''}>−</button><b>${party}</b><button type="button" data-party="1" aria-label="Bigger party" ${party >= MAX_PARTY || linked ? 'disabled' : ''}>+</button>
+          <span class="stepper" title="Party size, up to ${max} for ${esc(mode)} ${esc(b.name)} (splits the crystal's value)">
+            <button type="button" data-party="-1" aria-label="Smaller party" ${party <= 1 || linked ? 'disabled' : ''}>−</button><b>${party}</b><button type="button" data-party="1" aria-label="Bigger party" ${party >= max || linked ? 'disabled' : ''}>+</button>
           </span>
         </span>
         <span class="pick-val">${Site.formatMeso(b.modes[mode] / party)}</span>
@@ -313,7 +315,7 @@
       Site.toast(`A character can sell ${CHAR_LIMIT} weekly crystals. Untick a boss first.`);
       return false;
     }
-    pick.sel[id] = { mode, party };
+    pick.sel[id] = { mode, party: partyFor(id, mode, party) }; // Extreme Lotus: a party of 4 becomes 2
     return true;
   }
 
@@ -339,7 +341,7 @@
       if (pick.link[id]) return;
       const cur = pick.sel[id];
       const mode = step.closest('.pick-row').querySelector('[data-mode]').value;
-      const party = Math.min(MAX_PARTY, Math.max(1, (cur ? cur.party || 1 : 1) + Number(step.dataset.party)));
+      const party = partyFor(id, mode, (cur ? cur.party || 1 : 1) + Number(step.dataset.party));
       if (cur) cur.party = party; else select(id, mode, party);
       return renderPicker();
     }

@@ -91,3 +91,6 @@ span.cover-chip { cursor: default; }
 .m-force.is-low { color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, transparent); }
 .m-force b { font-weight: 800; }
 .m-sym { width: 14px; height: 14px; object-fit: contain; vertical-align: -3px; margin-right: 3px; }
+
+/* More members than the group's boss allows (Extreme Lotus: 2). */
+.group-foot .is-over, #g-count .is-over { color: var(--danger); font-weight: 700; }

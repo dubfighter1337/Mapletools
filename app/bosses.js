@@ -4,7 +4,6 @@
   const { $, esc } = Site;
   const B = Bossing;
   const { periodStart, nextReset, untilText, localTime } = Bossing;
-  const MAX_MEMBERS = 6;
   const SECTIONS = [
     { reset: 'weekly', title: 'Weekly bosses' },
     { reset: 'monthly', title: 'Monthly bosses' },
@@ -133,8 +132,17 @@
     return `<p class="group-covers" title="Ticking this group ticks these bosses in the Boss Planner:\n${esc(covers.map(B.label).join('\n'))}">${covers.length} bosses: ${esc(names)}</p>`;
   }
 
+  // How many players a group's bosses allow, and the boss that sets it ("Extreme Lotus": 2).
+  function partyLimit(keys) {
+    const max = B.maxParty(keys);
+    return { max, by: B.label(keys.find((k) => B.maxParty(k) === max) || '') };
+  }
+  const overText = (n, lim) => `${lim.by} allows ${lim.max} players: remove ${n - lim.max}`;
+
   function groupCard(g) {
     const members = g.members || [];
+    const lim = partyLimit(B.coversOf(g));
+    const over = members.length > lim.max;
     const need = B.need(B.coversOf(g));
     const cp = members.reduce((sum, ref) => sum + (Number(member(ref).cp) || 0), 0);
     return `
@@ -151,7 +159,7 @@
           ${members.length ? members.map((ref) => `<li class="${ref.startsWith('n:') ? 'is-guest' : ''}" title="${esc(memberTitle(ref))}">${memberRow(ref, true, need)}</li>`).join('')
             : '<li class="empty">No members yet</li>'}
         </ul>
-        <footer class="group-foot"><span>${members.length} / ${MAX_MEMBERS}</span><span>${cp ? `${esc(Site.formatCp(cp))} total` : ''}</span></footer>
+        <footer class="group-foot"><span class="${over ? 'is-over' : ''}" title="${esc(over ? overText(members.length, lim) : `Up to ${lim.max} players`)}">${members.length} / ${lim.max}${over ? ' · too many' : ''}</span><span>${cp ? `${esc(Site.formatCp(cp))} total` : ''}</span></footer>
       </article>`;
   }
 
@@ -257,7 +265,10 @@
   const draftCovers = () => (B.bundleFor($('g-title').value) ? coverList.filter((k) => coverOn.has(k)) : coverList.slice(0, 1));
 
   function renderDraft() {
-    $('g-count').textContent = `(${draft.length}/${MAX_MEMBERS})`;
+    const lim = partyLimit(draftCovers());
+    const over = draft.length > lim.max;
+    $('g-count').innerHTML = `(${draft.length}/${lim.max})${over ? ` <b class="is-over">${esc(overText(draft.length, lim))}</b>` : ''}`;
+    $('group-form').querySelector('[type=submit]').disabled = over;
     const need = B.need(draftCovers());
     $('g-members').innerHTML = draft.map((ref, i) => `
       <li class="${ref.startsWith('n:') ? 'is-guest' : ''}">${memberRow(ref, true, need)}
@@ -270,7 +281,7 @@
       if (draft.includes(`c:${cid}`)) continue;
       (byPlayer[c.owner] = byPlayer[c.owner] || []).push({ cid, ...c });
     }
-    const full = draft.length >= MAX_MEMBERS;
+    const full = draft.length >= lim.max;
     $('g-add-char').innerHTML = `<option value="">${full ? 'Group is full' : '+ Add a character…'}</option>` +
       Object.entries(byPlayer).map(([pid, chars]) => `
         <optgroup label="${esc(Party.inParty ? (doc.players[pid] || {}).name || 'Unknown player' : 'My characters')}">
@@ -308,7 +319,7 @@
 
   function addGuest() {
     const name = $('g-guest').value.trim();
-    if (!name || draft.length >= MAX_MEMBERS) return;
+    if (!name || draft.length >= B.maxParty(draftCovers())) return;
     draft.push(`n:${name.slice(0, 24)}`);
     $('g-guest').value = '';
     renderDraft();
@@ -317,10 +328,10 @@
   function saveGroup(e) {
     e.preventDefault();
     const title = $('g-title').value.trim();
-    if (!title) return;
+    const covers = draftCovers();
+    if (!title || draft.length > B.maxParty(covers)) return;
     const id = editingId || Site.uid('g');
     const before = editingId ? doc.schedule.groups[editingId] : null;
-    const covers = draftCovers();
     Party.update({
       [`schedule/groups/${id}`]: {
         title: title.slice(0, 40),
@@ -402,7 +413,7 @@
     });
     $('g-reset').addEventListener('change', () => { resetTouched = true; });
     $('g-add-char').addEventListener('change', (e) => {
-      if (e.target.value && draft.length < MAX_MEMBERS) draft.push(e.target.value);
+      if (e.target.value && draft.length < B.maxParty(draftCovers())) draft.push(e.target.value);
       renderDraft();
     });
     $('g-add-guest').addEventListener('click', addGuest);

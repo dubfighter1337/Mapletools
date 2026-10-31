@@ -56,6 +56,15 @@ window.Bossing = (function () {
   const price = (key) => { const p = parse(key); return p ? p.boss.modes[p.mode] || 0 : 0; };
   const allKeys = () => BOSSES.flatMap((b) => Object.keys(b.modes).map((m) => keyOf(b.id, m)));
 
+  // The most players a boss difficulty allows (data/boss-party.js, from the wiki: Extreme Lotus 2,
+  // the Grandis bosses 3); for several bosses (a Ctene group) the smallest of them.
+  const PARTY_MAX = 6;
+  function maxParty(keys) {
+    const sizes = [].concat(keys).map(parse).filter(Boolean)
+      .map((p) => ((MapleData.bossParty || {})[p.id] || {})[p.mode.toLowerCase()] || PARTY_MAX);
+    return sizes.length ? Math.min(...sizes) : PARTY_MAX;
+  }
+
   // ------------------------------------------------------------ schedule groups -> bosses
 
   const SHORT_MODES = { e: 'easy', n: 'normal', h: 'hard', c: 'chaos', x: 'extreme' };
@@ -159,7 +168,7 @@ window.Bossing = (function () {
   return {
     need, arcSteps, forceBonus, symbolFor, SYMBOL_BONUS,
     periodStart, nextReset, untilText, localTime,
-    BOSSES, BUNDLES, byId, resetOf, icon, iconImg, modeName, parse, keyOf, label, price, allKeys,
+    BOSSES, BUNDLES, byId, resetOf, icon, iconImg, modeName, parse, keyOf, label, price, allKeys, maxParty,
     bundleFor, guessCovers, coversOf, scheduleLinks,
   };
 })();

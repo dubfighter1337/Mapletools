@@ -102,6 +102,8 @@ boxes, Boss Ring Boxes, Sol Erda and Whisper crystals. The numbers come from:
 - `data/boss-info.js`: the party's boss info sheet (`tools\import-boss-info.ps1`).
 - `data/boss-details.js` and `data/icons/items`: the MapleStory wiki (`tools\import-boss-wiki.ps1`), Heroic
   worlds only, and only those drops (the filter is in the script). Run it again after a patch for new drops.
+- `data/boss-party.js`: the most players per difficulty, from the same wiki run (Extreme Lotus 2, the Grandis
+  bosses 3). The Boss Schedule caps a group at it and the Boss Planner splits a crystal no further.
 
 ## Upcoming patches
 
@@ -305,6 +307,7 @@ data/tasks.js         the Dailies task list
 data/patches.js       upcoming patch switches (v272)
 data/boss-info.js     boss level, HP and Force needed per difficulty (from the boss info sheet)
 data/boss-details.js  party, time limit, deaths and drops per difficulty (from the wiki)
+data/boss-party.js    the most players per boss difficulty (from the wiki)
 bossinfo.html         Boss Info
 database.rules.json   Firebase Realtime Database rules
 tools/lookup-relay.gs  character lookup relay (Google Apps Script)
@@ -320,7 +323,7 @@ tools/serve.ps1       optional local web server (http://localhost:8765)
 tools/bump-version.ps1  new ?v= stamp on the pages' links (run before publishing)
 tools/make-logo.ps1   mushroom picture -> teal logo
 tools/import-boss-info.ps1  boss info sheet -> data/boss-info.js (level, HP, ARC / SAC needed)
-tools/import-boss-wiki.ps1  wiki -> data/boss-details.js and data/icons/items (drops)
+tools/import-boss-wiki.ps1  wiki -> data/boss-details.js, data/boss-party.js and data/icons/items (drops)
 tools/fetch-wiki-icons.ps1  wiki -> boss and symbol icons (data/icons/bosses, data/icons/symbols)
 ```
 
