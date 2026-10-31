@@ -105,7 +105,8 @@ foreach ($id in $Pages.Keys) {
     $drops = if ($blocks.Count) { Drops $blocks[-1] } else { @() }
     if (-not $drops.Count) { Write-Warning "$id $mode`: no drops found" }
     foreach ($d in $drops) { $itemPages[$d[2]] = Slug $d[2]; if (-not $itemKind[$d[2]]) { $itemKind[$d[2]] = $d[0] } }
-    $dropJs = ($drops | ForEach-Object { "[$(Js $_[0]), $(Js $_[1]), $(Js (Slug $_[2]))$(if ($_[3]) { ', ' + (Js $_[3]) })]" }) -join ', '
+    # The icon is filled in at the end, once it's known which icons exist.
+    $dropJs = ($drops | ForEach-Object { "[$(Js $_[0]), $(Js $_[1]), @@icon:$(Slug $_[2])@@$(if ($_[3]) { ', ' + (Js $_[3]) })]" }) -join ', '
     $info = @(
       "entry: $(Js (Infobox $w 'level' $n))", "party: $(Js (Infobox $w 'partySize' $n))",
       "time: $(Js (Infobox $w 'timeLimit' $n))", "deaths: $(Js (Infobox $w 'deathCount' $n))"
@@ -116,18 +117,9 @@ foreach ($id in $Pages.Keys) {
   Write-Host "$id ok"
 }
 
-$out = @(
-  '// Boss details per difficulty from the MapleStory wiki (tools/import-boss-wiki.ps1 writes this file):'
-  '// entry level, party size, time limit, death count and drops for GMS Heroic worlds.'
-  '// drops: [kind (equip, setup, use, etc), name, icon (data/icons/items/<icon>.png), amount / notes].'
-  'MapleData.bossDetails = {'
-) + $lines + @('};')
-[IO.File]::WriteAllText((Join-Path $Root 'data/boss-details.js'), ($out -join "`n") + "`n", (New-Object Text.UTF8Encoding $false))
-Write-Host "data/boss-details.js: $($lines.Count / 2) boss difficulties, $($itemPages.Count) different drops"
-
-if ($NoIcons) { return }
 $dir = Join-Path $Root 'data/icons/items'
 New-Item -ItemType Directory -Force $dir | Out-Null
+if (-not $NoIcons) {
 
 # Asks the wiki about up to 40 titles at once and downloads what $Url picks from each page,
 # saving it under the item it was asked for ($For maps the asked title to the item's wiki page).
@@ -174,3 +166,18 @@ foreach ($f in Get-ChildItem $dir -Filter *.png) {
 }
 $missing = Missing
 Write-Host "icons: $((Get-ChildItem $dir -Filter *.png).Count) in data/icons/items; no icon for $($missing.Count): $($missing -join ', ')"
+}
+
+# Drops without an icon file get an empty icon, so the page shows a plain box instead of asking for a missing file.
+$body = [regex]::Replace(($lines -join "`n"), '@@icon:([a-z0-9-]+)@@', {
+  param($m) if (Test-Path (Join-Path $dir "$($m.Groups[1].Value).png")) { Js $m.Groups[1].Value } else { "''" } })
+$out = @(
+  '// Boss details per difficulty from the MapleStory wiki (tools/import-boss-wiki.ps1 writes this file):'
+  '// entry level, party size, time limit, death count and drops for GMS Heroic worlds.'
+  '// drops: [kind (equip, setup, use, etc), name, icon (data/icons/items/<icon>.png, empty: none), amount / notes].'
+  'MapleData.bossDetails = {'
+  $body
+  '};'
+)
+[IO.File]::WriteAllText((Join-Path $Root 'data/boss-details.js'), ($out -join "`n") + "`n", (New-Object Text.UTF8Encoding $false))
+Write-Host "data/boss-details.js: $($lines.Count / 2) boss difficulties, $($itemPages.Count) different drops"

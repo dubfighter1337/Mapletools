@@ -102,7 +102,7 @@
   function dropTile(d) {
     const [, name, icon, extra] = d;
     return `<div class="drop" title="${esc([name, extra].filter(Boolean).join('\n'))}">
-      <span class="drop-icon"><img src="data/icons/items/${esc(icon)}.png" alt="" loading="lazy" onerror="this.remove()"></span>
+      <span class="drop-icon">${icon ? `<img src="data/icons/items/${esc(icon)}.png" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>
       <span class="drop-name">${esc(name)}${extra ? `<small>${esc(extra)}</small>` : ''}</span></div>`;
   }
 
