@@ -83,7 +83,12 @@ foreach ($r in ($byRow.Keys | Sort-Object)) {
   $level = Read-Phased $row['E']
   $force = "$($row['F'])"
   $stat = ''
-  if ($force -match '100%:\s*(\d+)') { $stat = "arc: $($Matches[1])" }
+  if ($force -match '100%:\s*(\d+)') {
+    # Arcane also gives the ARC where 110%, 130% and 150% damage start ("110%: 396-467").
+    $stat = "arc: $($Matches[1])"
+    $steps = @('110', '130', '150' | ForEach-Object { if ($force -match "$_%:\s*(\d+)") { [int]$Matches[1] } })
+    if ($steps.Count -eq 3) { $stat += ", arcSteps: $(Js $steps)" }
+  }
   elseif ($force.Trim()) { $stat = "sac: $(Js (Read-Phased $force))" }
   $parts = @("level: $(Js $level)", "hp: $($hp.ToString('R', [Globalization.CultureInfo]::InvariantCulture))")
   if ($stat) { $parts += $stat }
@@ -94,7 +99,8 @@ $noteText = ($notes -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { 
 $out = @(
   '// Boss stats per difficulty from the party''s boss info sheet (tools/import-boss-info.ps1 writes this file).'
   '// level: the boss level, or one per phase. hp: 100% HP. arc / sac: Arcane or Sacred Force needed (sac per'
-  '// phase when it differs). Used by the Boss Schedule (members'' ARC / SAC) and the Bosses page.'
+  '// phase when it differs); arcSteps: the ARC where 110 / 130 / 150% damage start. Used by the Boss Schedule'
+  '// (members'' ARC / SAC) and the Boss Info page.'
   "MapleData.bossInfoNotes = '$($noteText.Replace("'", "\'"))';"
   'MapleData.bossInfo = {'
 ) + $lines + @('};')

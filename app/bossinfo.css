@@ -1,0 +1,63 @@
+/* Boss Info page: a clean grid of bosses, details in a dialog. */
+.page-head input[type=search] { width: min(320px, 100%); color: var(--text); font-size: 14px; padding: 8px 12px; }
+
+.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.info-card {
+  display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 14px; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow);
+}
+.info-card:hover, .info-card:focus-visible { border-color: var(--accent); outline: none; }
+.info-head { display: flex; align-items: center; gap: 10px; }
+.info-head h3 { margin: 0; font-size: 15px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.boss-icon.big { width: 36px; height: 36px; border-radius: 9px; }
+.info-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); }
+
+.mode-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.mode-pills button {
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); border-radius: 999px;
+  padding: 3px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.mode-pills button:hover { color: var(--text); }
+.mode-pills button.is-active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+.info-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0; }
+.info-stats div { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; background: var(--panel-2); border-radius: 9px; padding: 5px 8px; min-width: 0; }
+.info-stats dt { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.info-stats dd { margin: 0; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f-arc { color: #7ab8ff; }
+.f-sac { color: #c792ff; }
+
+/* ---------- details */
+.boss-dialog { width: min(620px, calc(100vw - 32px)); }
+.detail-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.detail-head h2 { margin: 0; font-size: 19px; }
+.detail-head > div { flex: 1; min-width: 0; }
+.detail-head .boss-icon.big { width: 44px; height: 44px; }
+.detail-x { border: 0; background: none; color: var(--muted); font-size: 24px; line-height: 1; cursor: pointer; padding: 4px 8px; }
+.detail-x:hover { color: var(--text); }
+.detail-stats { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 12px 0; font-size: 14px; }
+.detail-stats div { display: contents; }
+.detail-stats dt { color: var(--muted); }
+.detail-stats dd { margin: 0; }
+.detail-stats .steps { display: block; color: var(--muted); font-size: 12px; }
+.drop-head { margin: 14px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+.drop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
+.drop { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 9px; background: var(--panel-2); min-width: 0; }
+.drop-icon {
+  width: 32px; height: 32px; flex: none; border-radius: 7px; background: var(--tile);
+  display: grid; place-items: center; overflow: hidden;
+}
+.drop-icon img { max-width: 30px; max-height: 30px; image-rendering: auto; }
+.drop-name { font-size: 12px; line-height: 1.25; min-width: 0; }
+.drop-name small { display: block; color: var(--muted); font-size: 11px; }
+.common-drops { margin-top: 10px; }
+
+@media (prefers-color-scheme: light) {
+  .f-arc { color: #2f6fd0; }
+  .f-sac { color: #8a3fd0; }
+}
+@media (max-width: 640px) {
+  .page-head input[type=search] { width: 100%; }
+  .detail-stats { grid-template-columns: 1fr; gap: 2px; }
+  .detail-stats dt { margin-top: 6px; }
+}

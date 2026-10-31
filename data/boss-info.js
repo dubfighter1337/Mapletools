@@ -1,6 +1,7 @@
 // Boss stats per difficulty from the party's boss info sheet (tools/import-boss-info.ps1 writes this file).
 // level: the boss level, or one per phase. hp: 100% HP. arc / sac: Arcane or Sacred Force needed (sac per
-// phase when it differs). Used by the Boss Schedule (members' ARC / SAC) and the Bosses page.
+// phase when it differs); arcSteps: the ARC where 110 / 130 / 150% damage start. Used by the Boss Schedule
+// (members' ARC / SAC) and the Boss Info page.
 MapleData.bossInfoNotes = 'LAST UPDATED v271: Kaling HP Changes • Boss HP values: Doesn\'t account for any shield or healings from bosses, only base starting values. Doesn\'t account for any summons the bosses may have, which don\'t contribute to the damage needed. • AF: -10% FD for every 10 SAC under. +5% FD for every 10 SAC over, up to extra +25% FD at 50 SAC over. For any suggestions or corrections message riisso on discord';
 MapleData.bossInfo = {
   'zakum:chaos': { level: 180, hp: 168000000000 },
@@ -21,20 +22,20 @@ MapleData.bossInfo = {
   'damien:hard': { level: 210, hp: 36000000000000 },
   'slime:normal': { level: 220, hp: 5000000000000 },
   'slime:chaos': { level: 250, hp: 90000000000000 },
-  'lucid:easy': { level: 230, hp: 12000000000000, arc: 360 },
-  'lucid:normal': { level: 230, hp: 24000000000000, arc: 360 },
-  'lucid:hard': { level: 230, hp: 117600000000000, arc: 360 },
-  'will:easy': { level: 235, hp: 16800000000000, arc: 560 },
-  'will:normal': { level: 250, hp: 25200000000000, arc: 760 },
-  'will:hard': { level: 250, hp: 126000000000000, arc: 760 },
-  'gloom:normal': { level: 255, hp: 26000000000000, arc: 730 },
-  'gloom:chaos': { level: 255, hp: 126000000000000, arc: 730 },
-  'verus_hilla:normal': { level: 250, hp: 88000000000000, arc: 820 },
-  'verus_hilla:hard': { level: 250, hp: 176000000000000, arc: 900 },
-  'darknell:normal': { level: 265, hp: 26000000000000, arc: 850 },
-  'darknell:hard': { level: 265, hp: 160000000000000, arc: 850 },
-  'black_mage:hard': { level: [265, 275, 275, 265], hp: 472500000000000, arc: 1320 },
-  'black_mage:extreme': { level: [275, 280, 280, 280], hp: 4.811E+15, arc: 1320 },
+  'lucid:easy': { level: 230, hp: 12000000000000, arc: 360, arcSteps: [396, 468, 540] },
+  'lucid:normal': { level: 230, hp: 24000000000000, arc: 360, arcSteps: [396, 468, 540] },
+  'lucid:hard': { level: 230, hp: 117600000000000, arc: 360, arcSteps: [396, 468, 540] },
+  'will:easy': { level: 235, hp: 16800000000000, arc: 560, arcSteps: [616, 728, 840] },
+  'will:normal': { level: 250, hp: 25200000000000, arc: 760, arcSteps: [836, 988, 1140] },
+  'will:hard': { level: 250, hp: 126000000000000, arc: 760, arcSteps: [836, 988, 1140] },
+  'gloom:normal': { level: 255, hp: 26000000000000, arc: 730, arcSteps: [803, 949, 1095] },
+  'gloom:chaos': { level: 255, hp: 126000000000000, arc: 730, arcSteps: [803, 949, 1095] },
+  'verus_hilla:normal': { level: 250, hp: 88000000000000, arc: 820, arcSteps: [905, 1070, 1230] },
+  'verus_hilla:hard': { level: 250, hp: 176000000000000, arc: 900, arcSteps: [990, 1170, 1350] },
+  'darknell:normal': { level: 265, hp: 26000000000000, arc: 850, arcSteps: [935, 1105, 1275] },
+  'darknell:hard': { level: 265, hp: 160000000000000, arc: 850, arcSteps: [935, 1105, 1275] },
+  'black_mage:hard': { level: [265, 275, 275, 265], hp: 472500000000000, arc: 1320, arcSteps: [1452, 1716, 1980] },
+  'black_mage:extreme': { level: [275, 280, 280, 280], hp: 4.811E+15, arc: 1320, arcSteps: [1452, 1716, 1980] },
   'seren:normal': { level: 270, hp: 207900000000000, sac: [150, 200] },
   'seren:hard': { level: 275, hp: 483000000000000, sac: [150, 200] },
   'seren:extreme': { level: [275, 280], hp: 6.48E+15, sac: [150, 200] },

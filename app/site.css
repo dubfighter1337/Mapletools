@@ -245,3 +245,8 @@ select:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
   .fields { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
 }
+/* Narrow phones: six tools in the menu still fit. */
+@media (max-width: 420px) {
+  .sitenav { gap: 4px; }
+  .site-links a { padding: 7px 3px; }
+}

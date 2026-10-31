@@ -126,8 +126,26 @@ window.Bossing = (function () {
     return out;
   }
 
+  // The ARC where 110 / 130 / 150% damage start for a boss (from the sheet, else 1.1x / 1.3x / 1.5x).
+  function arcSteps(key) {
+    const b = (MapleData.bossInfo || {})[key] || {};
+    return b.arcSteps || (b.arc ? [1.1, 1.3, 1.5].map((x) => Math.ceil(b.arc * x)) : []);
+  }
+
+  // Extra damage (%) for more Force than a boss needs, from the boss info sheet: Arcane +10 / +30 / +50%
+  // at its steps, Sacred +5% final damage per 10 over (up to +25% at 50 over). null: below what it needs
+  // (Sacred then loses 10% final damage per 10 short).
+  function forceBonus(s, have, key) {
+    const b = (MapleData.bossInfo || {})[key] || {};
+    const req = Array.isArray(b[s]) ? Math.max(...b[s]) : b[s];
+    if (!req || have < req) return null;
+    if (s === 'sac') return Math.min(25, Math.floor((have - req) / 10) * 5);
+    const [a, c, d] = arcSteps(key);
+    return have >= d ? 50 : have >= c ? 30 : have >= a ? 10 : 0;
+  }
+
   return {
-    need,
+    need, arcSteps, forceBonus,
     periodStart, nextReset, untilText, localTime,
     BOSSES, BUNDLES, byId, resetOf, icon, iconImg, modeName, parse, keyOf, label, price, allKeys,
     bundleFor, guessCovers, coversOf, scheduleLinks,

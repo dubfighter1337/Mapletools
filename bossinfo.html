@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boss Info · MapleTools</title>
+  <link rel="icon" type="image/png" href="app/mushroom.png?v=2610311933">
+  <link rel="stylesheet" href="app/site.css?v=2610311933">
+  <link rel="stylesheet" href="app/bossinfo.css?v=2610311933">
+</head>
+<body>
+  <header class="sitenav" id="sitenav" data-page="bossinfo"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Boss Info</h1>
+        <p>Every weekly and monthly boss. Pick a difficulty, or click a boss for its drops and more.</p>
+      </div>
+      <input id="search" type="search" placeholder="Search bosses" autocomplete="off" aria-label="Search bosses">
+    </div>
+    <div id="boss-grid" class="info-grid"></div>
+    <p id="info-note" class="note"></p>
+  </main>
+
+  <dialog id="boss-dialog" class="dialog boss-dialog">
+    <div id="boss-detail"></div>
+  </dialog>
+
+  <script src="app/registry.js?v=2610311933"></script>
+  <script src="app/site.js?v=2610311933"></script>
+  <script src="data/patches.js?v=2610311933"></script>
+  <script src="data/bosses.js?v=2610311933"></script>
+  <script src="data/boss-info.js?v=2610311933"></script>
+  <script src="data/boss-details.js?v=2610311933"></script>
+  <script src="app/bossing.js?v=2610311933"></script>
+  <script src="app/bossinfo.js?v=2610311933"></script>
+</body>
+</html>

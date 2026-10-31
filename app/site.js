@@ -9,6 +9,7 @@ window.Site = (function () {
     { id: 'bosses', href: 'bosses.html', label: 'Boss Schedule', short: 'Schedule', desc: 'Weekly and monthly boss groups, ticked off live with your party.' },
     { id: 'planner', href: 'planner.html', label: 'Boss Planner', short: 'Planner', desc: 'Each character\'s weekly bosses, crystals and mesos. Ticks itself from the schedule.' },
     { id: 'dailies', href: 'dailies.html', label: 'Dailies', desc: 'Daily and weekly tasks per character: symbols, Monster Park, Ursus, daily bosses, guild.' },
+    { id: 'bossinfo', href: 'bossinfo.html', label: 'Boss Info', short: 'Info', desc: 'Every boss at a glance: level, HP, Force needed, crystal, and its drops.' },
   ];
   const PARTY_KEY = 'mapletools-party';
 

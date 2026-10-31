@@ -9,6 +9,7 @@ Tools for a MapleStory party, live at https://dubfighter1337.github.io/Mapletool
 | **Boss Schedule** (`bosses.html`) | Boss groups with their members, ticked off when done; resets weekly (Thursday 00:00 UTC) or monthly (Black Mage, 1st of the month). |
 | **Boss Planner** (`planner.html`) | Per character: the weekly bosses, crystals (14 per character, 180 per world) and mesos. Ticking a schedule group ticks its bosses here. |
 | **Dailies** (`dailies.html`) | Per character: daily, weekly and monthly tasks (symbols, Monster Park, Ursus, daily bosses, guild, ...) plus custom ones. |
+| **Boss Info** (`bossinfo.html`) | Every weekly and monthly boss: level, HP, ARC / SAC needed and crystal; click a boss for party size, time limit, deaths and drops. |
 
 The menu on every page comes from `TOOLS` in `app/site.js`; add a new tool there. The logo is
 `app/mushroom.png`, made from a MapleStory mushroom picture by `tools/make-logo.ps1` (recolours it to the
@@ -89,6 +90,15 @@ the Characters page, presets and "Same as <character>"), and anyone can add a **
 reset, shared with the party. Resets: daily 00:00 UTC, Monday, Wednesday (events), Thursday (weekly) and
 the 1st of the month. The task list is `data/tasks.js`.
 
+## Boss Info
+
+A grid of every weekly and monthly boss with its level, HP, Force needed and crystal per difficulty; clicking a
+boss shows the rest: level per phase, entry level, Arcane steps or Sacred rule, party size, time limit, deaths
+allowed, crystal per party size, and the drops (gear first, common drops in one line). The numbers come from:
+- `data/boss-info.js`: the party's boss info sheet (`tools\import-boss-info.ps1`).
+- `data/boss-details.js` and `data/icons/items`: the MapleStory wiki (`tools\import-boss-wiki.ps1`), Heroic
+  worlds only. Run it again after a patch to pick up new drops.
+
 ## Upcoming patches
 
 Patch changes can be prepared in the data and switched on later in `data/patches.js`. v.272
@@ -97,6 +107,8 @@ Patch changes can be prepared in the data and switched on later in `data/patches
   Boss Planner and appear under Daily Bosses on the Dailies page).
 - Monster Park Extreme is removed; the weekly "Extreme Monster Parker" quest and buying Extreme Momo are added.
 - Ursus becomes once a day with 2x mesos all day (the Ursus countdown disappears).
+- Weekly and monthly bosses get a 20 minute time limit and most lose about a third of their HP
+  (`MapleData.patchBossChanges` in the same file; Boss Info shows the new HP and time).
 
 ### Character lookup (Nexon rankings relay)
 
@@ -288,6 +300,8 @@ data/bosses.js        bosses, crystal prices, bundles (Ctene) and presets
 data/tasks.js         the Dailies task list
 data/patches.js       upcoming patch switches (v272)
 data/boss-info.js     boss level, HP and Force needed per difficulty (from the boss info sheet)
+data/boss-details.js  party, time limit, deaths and drops per difficulty (from the wiki)
+bossinfo.html         Boss Info
 database.rules.json   Firebase Realtime Database rules
 tools/lookup-relay.gs  character lookup relay (Google Apps Script)
 data/hexa-costs.js    HEXA cost tables
@@ -302,6 +316,7 @@ tools/serve.ps1       optional local web server (http://localhost:8765)
 tools/bump-version.ps1  new ?v= stamp on the pages' links (run before publishing)
 tools/make-logo.ps1   mushroom picture -> teal logo
 tools/import-boss-info.ps1  boss info sheet -> data/boss-info.js (level, HP, ARC / SAC needed)
+tools/import-boss-wiki.ps1  wiki -> data/boss-details.js and data/icons/items (drops)
 tools/fetch-wiki-icons.ps1  wiki -> boss and symbol icons (data/icons/bosses, data/icons/symbols)
 ```
 

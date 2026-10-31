@@ -73,27 +73,19 @@
       const stat = s.toUpperCase();
       const v = have[stat];
       const req = need[s].value;
-      const extra = forceBonus(s, v, req);
-      return `<span class="m-force ${v >= req ? 'is-ok' : 'is-low'}" title="${esc(forceTip(s, v, req, B.label(need[s].key)))}">${stat} ${v}${
+      const extra = B.forceBonus(s, v, need[s].key);
+      return `<span class="m-force ${v >= req ? 'is-ok' : 'is-low'}" title="${esc(forceTip(s, v, req, need[s].key))}">${stat} ${v}${
         extra > 0 ? ` <b>+${extra}%</b>` : ''}</span>`;
     }).join('');
   }
 
-  // Extra damage (%) for having more Force than needed, from the boss info sheet: Arcane +10 / +30 / +50%
-  // at 1.1x / 1.3x / 1.5x what's needed; Sacred +5% final damage per 10 over, up to +25% at 50 over.
-  // Below what's needed: null (Sacred loses 10% final damage per 10 short).
-  function forceBonus(s, have, req) {
-    if (have < req) return null;
-    if (s === 'arc') return have >= req * 1.5 ? 50 : have >= req * 1.3 ? 30 : have >= req * 1.1 ? 10 : 0;
-    return Math.min(25, Math.floor((have - req) / 10) * 5);
-  }
-
-  function forceTip(s, have, req, boss) {
-    const head = `${s.toUpperCase()} ${have}: ${boss} needs ${req}`;
-    const extra = forceBonus(s, have, req);
+  function forceTip(s, have, req, key) {
+    const head = `${s.toUpperCase()} ${have}: ${B.label(key)} needs ${req}`;
+    const extra = B.forceBonus(s, have, key);
     if (extra === null) return s === 'arc' ? `${head}. Below it you deal much less damage` : `${head}. ${req - have} short: -10% final damage per 10 short`;
+    const next = B.arcSteps(key)[extra >= 30 ? 2 : extra >= 10 ? 1 : 0];
     return `${head}. ${extra ? `+${extra}% ${s === 'arc' ? 'damage' : 'final damage'}` : 'Enough, no extra damage yet'}${
-      s === 'arc' && extra < 50 ? ` (next step at ${Math.ceil(req * (extra >= 30 ? 1.5 : extra >= 10 ? 1.3 : 1.1))})` : ''}${
+      s === 'arc' && extra < 50 ? ` (next step at ${next})` : ''}${
       s === 'sac' && extra < 25 ? ` (+5% per 10 over, up to +25% at ${req + 50})` : ''}`;
   }
 
