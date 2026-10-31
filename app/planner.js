@@ -28,7 +28,7 @@
   // ------------------------------------------------------------ rows and totals
 
   // One row per boss: the character's own picks plus bosses a schedule group clears for them.
-  // A schedule group decides the difficulty (once ticked) and the party size (its member count).
+  // A schedule group the character is in decides that boss's difficulty and party size (its member count).
   function rowsFor(cid, links) {
     const p = plan(cid);
     const sel = p.sel || {};
@@ -39,7 +39,7 @@
       const boss = B.byId[id];
       if (!boss) continue;
       const s = sel[id], l = link[id];
-      const mode = l && (l.done || !s) ? l.mode : B.modeName(boss, s.mode) || Object.keys(boss.modes)[0];
+      const mode = l ? l.mode : B.modeName(boss, s.mode) || Object.keys(boss.modes)[0];
       const party = Math.min(MAX_PARTY, Math.max(1, l ? l.party : Number(s.party) || 1));
       const reset = boss.reset || 'weekly';
       const manual = (ticks[id] || 0) >= B.periodStart(reset);
@@ -240,7 +240,7 @@
 
   function openPicker(cid) {
     if (!isMine(cid)) return;
-    pick = { cid, sel: JSON.parse(JSON.stringify(plan(cid).sel || {})) };
+    pick = { cid, sel: JSON.parse(JSON.stringify(plan(cid).sel || {})), link: B.scheduleLinks(doc)[cid] || {} };
     savingPreset = false;
     $('pick-title').textContent = `Bosses for ${doc.characters[cid].name}`;
     $('pick-search').value = '';
@@ -249,12 +249,20 @@
     $('pick-list').scrollTop = 0;
   }
 
-  const weeklyPicked = () => Object.keys(pick.sel).filter((id) => B.resetOf(id) === 'weekly').length;
+  // A boss in the picker: from a Boss Schedule group the character is in (fixed here), or picked.
+  function picked(id) {
+    const l = pick.link[id];
+    if (l) return { mode: l.mode, party: Math.max(1, l.party), link: l };
+    const s = pick.sel[id];
+    return s ? { mode: s.mode, party: Math.max(1, s.party || 1) } : null;
+  }
+  const pickedIds = () => [...new Set([...Object.keys(pick.sel), ...Object.keys(pick.link)])].filter((id) => B.byId[id]);
+  const weeklyPicked = () => pickedIds().filter((id) => B.resetOf(id) === 'weekly').length;
 
   function renderPicker() {
     const weekly = weeklyPicked();
-    const income = Object.entries(pick.sel).filter(([id]) => B.resetOf(id) === 'weekly')
-      .reduce((s, [id, x]) => s + B.price(B.keyOf(id, x.mode)) / Math.max(1, x.party || 1), 0);
+    const income = pickedIds().filter((id) => B.resetOf(id) === 'weekly')
+      .reduce((s, id) => { const x = picked(id); return s + B.price(B.keyOf(id, x.mode)) / x.party; }, 0);
     $('pick-count').innerHTML = `<b class="${weekly >= CHAR_LIMIT ? 'is-full' : ''}">${weekly}/${CHAR_LIMIT}</b> weekly · ${Site.formatMeso(income)} a week`;
 
     const list = presets();
@@ -277,25 +285,30 @@
   }
 
   function pickRow(b) {
-    const s = pick.sel[b.id];
+    const s = picked(b.id);
+    const linked = !!(s && s.link);
     const modes = Object.keys(b.modes);
     const mode = (s && B.modeName(b, s.mode)) || modes[0];
-    const party = s ? Math.max(1, s.party || 1) : 1;
+    const party = s ? s.party : 1;
+    const off = linked ? 'disabled' : '';
+    const tag = linked
+      ? `<span class="pick-tag" title="${esc(`In the Boss Schedule: ${s.link.title} (${s.link.party} in the group). Change it there.`)}">${LINK_ICON} Schedule</span>` : '';
     return `
-      <div class="pick-row ${s ? 'is-on' : ''}" data-id="${esc(b.id)}">
-        <label class="pick-name"><input type="checkbox" data-on ${s ? 'checked' : ''}>${bossIcon(b.id)}<span>${esc(b.name)}</span></label>
+      <div class="pick-row ${s ? 'is-on' : ''} ${linked ? 'is-linked' : ''}" data-id="${esc(b.id)}">
+        <label class="pick-name"><input type="checkbox" data-on ${s ? 'checked' : ''} ${off}>${bossIcon(b.id)}<span>${esc(b.name)}</span>${tag}</label>
         <span class="pick-ctrl">
-          <select data-mode aria-label="${esc(b.name)} difficulty">${modes.map((m) => `<option value="${esc(m.toLowerCase())}" ${m === mode ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
+          <select data-mode aria-label="${esc(b.name)} difficulty" ${off}>${modes.map((m) => `<option value="${esc(m.toLowerCase())}" ${m === mode ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
           <span class="stepper" title="Party size (splits the crystal's value)">
-            <button type="button" data-party="-1" aria-label="Smaller party" ${party <= 1 ? 'disabled' : ''}>−</button><b>${party}</b><button type="button" data-party="1" aria-label="Bigger party" ${party >= MAX_PARTY ? 'disabled' : ''}>+</button>
+            <button type="button" data-party="-1" aria-label="Smaller party" ${party <= 1 || linked ? 'disabled' : ''}>−</button><b>${party}</b><button type="button" data-party="1" aria-label="Bigger party" ${party >= MAX_PARTY || linked ? 'disabled' : ''}>+</button>
           </span>
         </span>
         <span class="pick-val">${Site.formatMeso(b.modes[mode] / party)}</span>
       </div>`;
   }
 
-  // Selecting a weekly boss past the 14-crystal limit isn't allowed.
+  // Selecting a weekly boss past the 14-crystal limit isn't allowed (schedule bosses count too).
   function select(id, mode, party) {
+    if (pick.link[id]) return false;
     if (!pick.sel[id] && B.resetOf(id) === 'weekly' && weeklyPicked() >= CHAR_LIMIT) {
       Site.toast(`A character can sell ${CHAR_LIMIT} weekly crystals. Untick a boss first.`);
       return false;
@@ -308,6 +321,7 @@
     const rowEl = e.target.closest('.pick-row');
     if (!rowEl) return;
     const id = rowEl.dataset.id;
+    if (pick.link[id]) return renderPicker(); // the schedule decides this one
     const mode = rowEl.querySelector('[data-mode]').value;
     const party = pick.sel[id] ? pick.sel[id].party || 1 : 1;
     if (e.target.matches('[data-on]')) {
@@ -322,6 +336,7 @@
     const step = e.target.closest('[data-party]');
     if (step) {
       const id = step.closest('.pick-row').dataset.id;
+      if (pick.link[id]) return;
       const cur = pick.sel[id];
       const mode = step.closest('.pick-row').querySelector('[data-mode]').value;
       const party = Math.min(MAX_PARTY, Math.max(1, (cur ? cur.party || 1 : 1) + Number(step.dataset.party)));
@@ -417,6 +432,7 @@
   Party.subscribe((d) => {
     doc = d;
     if (!Arrange.dragging) render(); // a drop saves and redraws anyway
+    if (pick && $('pick-dialog').open) { pick.link = B.scheduleLinks(doc)[pick.cid] || {}; renderPicker(); } // schedule changed
   });
   Party.start();
   setInterval(() => { if (doc && !Arrange.dragging) render(); }, 60 * 1000); // countdown, and ticks expiring at the reset

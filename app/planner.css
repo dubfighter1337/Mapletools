@@ -35,3 +35,7 @@
   .pick-row:not(.is-on) .pick-ctrl { display: none; }
   .pick-ctrl select { width: 96px; }
 }
+
+/* Bosses from a Boss Schedule group: ticked and fixed in the picker. */
+.pick-tag { display: inline-flex; align-items: center; gap: 3px; flex: none; font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .4px; }
+.pick-row.is-linked select:disabled, .pick-row.is-linked input:disabled { opacity: .75; cursor: default; }
