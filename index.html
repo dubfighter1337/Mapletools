@@ -3,75 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>6th Job Planner</title>
-  <link rel="stylesheet" href="app/style.css">
+  <title>Characters · MapleTools</title>
+  <link rel="stylesheet" href="app/site.css">
+  <link rel="stylesheet" href="app/roster.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">◆</span>
-      <span class="brand-name">6th Job Planner</span>
-    </div>
-    <nav id="tabs" class="tabs" aria-label="Pinned classes"></nav>
-    <div class="picker" id="picker">
-      <button id="picker-btn" class="btn ghost picker-btn" aria-haspopup="true" aria-expanded="false"></button>
-      <div id="picker-panel" class="picker-panel" hidden>
-        <input id="picker-search" type="search" placeholder="Search classes…" autocomplete="off" aria-label="Search classes">
-        <p id="picker-hint" class="picker-hint"></p>
-        <div id="picker-list" class="picker-list"></div>
-      </div>
-    </div>
-    <div class="actions">
-      <button id="undo" class="btn ghost" title="Undo (Ctrl+Z)" disabled>Undo</button>
-      <button id="export" class="btn ghost" title="Save a backup file of all your levels">Backup</button>
-      <label class="btn ghost" title="Load a backup file">Restore<input id="import" type="file" accept=".json,application/json" hidden></label>
-    </div>
-  </header>
+  <header class="sitenav" id="sitenav" data-page="roster"></header>
 
-  <main class="layout">
-    <section class="board-area">
-      <div class="board-head">
-        <div>
-          <h1 id="class-title" class="class-title"></h1>
-          <p id="class-meta" class="class-meta"></p>
-        </div>
-        <div class="board-tools">
-          <label class="field-inline" id="order-field">
-            <span>Priority</span>
-            <select id="order-select"></select>
-          </label>
-          <button id="reset-class" class="btn ghost small" title="Set every node of this class back to its starting level">Reset</button>
-        </div>
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Characters</h1>
+        <p id="roster-sub"></p>
       </div>
-      <div id="board" class="board"></div>
-      <p class="hint">Click a node <b>+1</b> · right-click <b>−1</b> · Shift+click <b>max</b> · Shift+right-click <b>reset</b></p>
-    </section>
+      <button id="add-char" class="btn primary">+ Add character</button>
+    </div>
 
-    <aside class="sidebar">
-      <section class="card next-card" id="next-card"></section>
-      <section class="card" id="selected-card"></section>
-      <section class="card">
-        <h2 class="card-title">Resources</h2>
-        <div class="fields">
-          <label class="field"><span>Fragments owned</span><input id="frags-owned" type="number" min="0" inputmode="numeric"></label>
-          <label class="field"><span>Fragments / day</span><input id="frags-day" type="number" min="0" inputmode="numeric"></label>
-        </div>
-        <div id="eta"></div>
-      </section>
-      <section class="card">
-        <h2 class="card-title">Looking ahead</h2>
-        <ol id="ahead" class="ahead"></ol>
-      </section>
-      <section class="card" id="progress"></section>
-    </aside>
+    <div class="roster-layout">
+      <section id="roster" class="roster" aria-live="polite"></section>
+      <aside class="roster-side">
+        <section class="card" id="party"></section>
+        <section class="card">
+          <h2 class="card-title">Tools</h2>
+          <div id="tools" class="tools"></div>
+        </section>
+      </aside>
+    </div>
   </main>
 
-  <div id="tip" class="tip" role="tooltip" hidden></div>
-  <div id="load-error" class="load-error" hidden></div>
+  <dialog id="char-dialog" class="dialog">
+    <form id="char-form" method="dialog">
+      <h2 id="char-dialog-title">Add character</h2>
+      <div class="fields">
+        <label class="field span-2"><span>Character name</span><input id="char-name" type="text" maxlength="24" required autocomplete="off"></label>
+        <label class="field span-2"><span>Class</span><select id="char-class"></select></label>
+        <label class="field"><span>Level</span><input id="char-level" type="number" min="1" max="300" inputmode="numeric"></label>
+        <label class="field"><span>Combat power (millions)</span><input id="char-cp" type="number" min="0" step="0.1" inputmode="decimal" placeholder="e.g. 160"></label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" id="char-delete" class="btn ghost danger">Delete</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="party-dialog" class="dialog">
+    <form id="party-form" method="dialog"></form>
+  </dialog>
 
   <script src="app/registry.js"></script>
-  <script src="data/hexa-costs.js"></script>
+  <script src="app/site.js"></script>
   <script src="data/classes/index.js"></script>
-  <script src="app/app.js"></script>
+  <script src="app/firebase-config.js"></script>
+  <script src="app/party.js"></script>
+  <script src="app/roster.js"></script>
 </body>
 </html>

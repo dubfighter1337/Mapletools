@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boss Schedule · MapleTools</title>
+  <link rel="stylesheet" href="app/site.css">
+  <link rel="stylesheet" href="app/bosses.css">
+</head>
+<body>
+  <header class="sitenav" id="sitenav" data-page="bosses"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Boss Schedule</h1>
+        <p id="boss-sub"></p>
+      </div>
+      <button id="add-group" class="btn primary">+ Add group</button>
+    </div>
+    <section id="stats" class="boss-stats"></section>
+    <div id="sections"></div>
+  </main>
+
+  <dialog id="group-dialog" class="dialog dialog-wide">
+    <form id="group-form" method="dialog">
+      <h2 id="group-dialog-title">Add boss group</h2>
+      <div class="fields">
+        <label class="field span-2"><span>Boss / group name</span>
+          <input id="g-title" type="text" list="boss-presets" maxlength="40" required autocomplete="off" placeholder="e.g. Normal Kalos 1"></label>
+        <label class="field span-2"><span>Resets</span>
+          <select id="g-reset">
+            <option value="weekly">Weekly (Thursday 00:00 UTC)</option>
+            <option value="monthly">Monthly (1st of the month, Black Mage)</option>
+            <option value="daily">Daily (00:00 UTC)</option>
+          </select></label>
+      </div>
+      <div class="field"><span>Members <span id="g-count"></span></span></div>
+      <ul id="g-members" class="pick-list"></ul>
+      <div class="add-member">
+        <select id="g-add-char" aria-label="Add a character from the roster"></select>
+        <span class="or">or</span>
+        <input id="g-guest" type="text" maxlength="24" placeholder="Guest name">
+        <button type="button" id="g-add-guest" class="btn small">Add</button>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" id="g-delete" class="btn ghost danger">Delete group</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+  <datalist id="boss-presets"></datalist>
+
+  <script src="app/registry.js"></script>
+  <script src="app/site.js"></script>
+  <script src="data/classes/index.js"></script>
+  <script src="data/bosses.js"></script>
+  <script src="app/firebase-config.js"></script>
+  <script src="app/party.js"></script>
+  <script src="app/bosses.js"></script>
+</body>
+</html>

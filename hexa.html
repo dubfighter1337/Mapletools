@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HEXA Planner</title>
+  <link rel="stylesheet" href="app/site.css">
+  <link rel="stylesheet" href="app/hexa.css">
+</head>
+<body>
+  <header class="sitenav" id="sitenav" data-page="hexa"></header>
+  <div class="topbar">
+    <nav id="tabs" class="tabs" aria-label="Pinned classes"></nav>
+    <div class="picker" id="picker">
+      <button id="picker-btn" class="btn ghost picker-btn" aria-haspopup="true" aria-expanded="false"></button>
+      <div id="picker-panel" class="picker-panel" hidden>
+        <input id="picker-search" type="search" placeholder="Search classes…" autocomplete="off" aria-label="Search classes">
+        <p id="picker-hint" class="picker-hint"></p>
+        <div id="picker-list" class="picker-list"></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="undo" class="btn ghost" title="Undo (Ctrl+Z)" disabled>Undo</button>
+      <button id="export" class="btn ghost" title="Save a backup file of all your levels">Backup</button>
+      <label class="btn ghost" title="Load a backup file">Restore<input id="import" type="file" accept=".json,application/json" hidden></label>
+    </div>
+  </div>
+
+  <main class="layout">
+    <section class="board-area">
+      <div class="board-head">
+        <div>
+          <h1 id="class-title" class="class-title"></h1>
+          <p id="class-meta" class="class-meta"></p>
+        </div>
+        <div class="board-tools">
+          <label class="field-inline" id="order-field">
+            <span>Priority</span>
+            <select id="order-select"></select>
+          </label>
+          <button id="reset-class" class="btn ghost small" title="Set every node of this class back to its starting level">Reset</button>
+        </div>
+      </div>
+      <div id="board" class="board"></div>
+      <p class="hint">Click a node <b>+1</b> · right-click <b>−1</b> · Shift+click <b>max</b> · Shift+right-click <b>reset</b></p>
+    </section>
+
+    <aside class="sidebar">
+      <section class="card next-card" id="next-card"></section>
+      <section class="card" id="selected-card"></section>
+      <section class="card">
+        <h2 class="card-title">Resources</h2>
+        <div class="fields">
+          <label class="field"><span>Fragments owned</span><input id="frags-owned" type="number" min="0" inputmode="numeric"></label>
+          <label class="field"><span>Fragments / day</span><input id="frags-day" type="number" min="0" inputmode="numeric"></label>
+        </div>
+        <div id="eta"></div>
+      </section>
+      <section class="card">
+        <h2 class="card-title">Looking ahead</h2>
+        <ol id="ahead" class="ahead"></ol>
+      </section>
+      <section class="card" id="progress"></section>
+    </aside>
+  </main>
+
+  <div id="tip" class="tip" role="tooltip" hidden></div>
+  <div id="load-error" class="load-error" hidden></div>
+
+  <script src="app/registry.js"></script>
+  <script src="app/site.js"></script>
+  <script src="data/hexa-costs.js"></script>
+  <script src="data/classes/index.js"></script>
+  <script src="app/hexa.js"></script>
+</body>
+</html>

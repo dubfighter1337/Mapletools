@@ -1,7 +1,34 @@
-# 6th Job Planner
+# MapleTools
 
-A talent-calculator style planner for MapleStory 6th job: click nodes up and down, and it tells you
-what to level next, what it costs, and how many days of fragments that is. Covers all 54 classes.
+Tools for a MapleStory party, live at https://dubfighter1337.github.io/Mapletools/.
+
+| Page | What it does |
+|---|---|
+| **Characters** (`index.html`, start page) | The party roster: everyone's characters with class, level and combat power. Create or join a party here. |
+| **HEXA Planner** (`hexa.html`) | Talent-calculator style 6th job planner: what to level next, what it costs, how many days of fragments. |
+| **Boss Schedule** (`bosses.html`) | Boss groups with their members, ticked off when done; resets weekly (Thursday 00:00 UTC) or monthly (Black Mage, 1st of the month). |
+
+The menu on every page comes from `TOOLS` in `app/site.js`; add a new tool there.
+
+## Parties (live sharing)
+
+On the Characters page you can **create a party** (you get a code like `ABCDE-FGHJK`) or **join** one with a
+code or invite link. Everyone in the party sees the same roster and boss schedule, updated live. Everyone
+sees all characters but only edits their own (enforced by the page, not by the server, which is fine for a
+friends' group). Joining on a second device: pick "I'm <your name>" when joining.
+
+Without a party, the roster and schedule are kept in your own browser only.
+
+Party data lives in a free Firebase Realtime Database (project `mapletools-69cbe`). The site's Firebase
+config is in `app/firebase-config.js` (public by design). The database rules are in `database.rules.json`:
+anyone who knows a party's code can read and write that party, and nobody can list parties. To change
+them, paste the file into Firebase console → Realtime Database → Rules → Publish.
+
+The HEXA Planner is personal: its levels stay in your browser and are not shared with the party.
+
+## HEXA Planner
+
+Covers all 54 classes.
 
 | Classes | System | Data from |
 |---|---|---|
@@ -13,9 +40,9 @@ All data lives in this folder (`data/`). The app never talks to Google Sheets or
 Metumtam's orders for 48 classes were calculated with KMS data, so some skills can be ahead of GMS;
 those classes say so under their name.
 
-## Using it
+### Using it
 
-Open `index.html` in your browser (double-click it). No install and no internet connection needed.
+Open `hexa.html` (or the HEXA Planner in the menu). Double-clicking the file works too; no install needed.
 
 - **Click** a node: +1 level. **Right-click**: −1. **Shift+click**: max. **Shift+right-click**: back to the start.
 - The glowing node is the next upgrade in the selected **Priority** order. **Done: Lv X** marks it done.
@@ -31,7 +58,7 @@ saved copy. Use **Backup** to save a file and **Restore** to load it somewhere e
 On first open, each class starts from the levels in your own sheets (`data/my-levels.js`). That file only
 exists on your PC; it's left out of git, so the shared GitHub Pages copy starts everyone at zero.
 
-## Sharing (GitHub Pages)
+## Publishing (GitHub Pages)
 
 The shared copy is this folder pushed to GitHub with Pages turned on. To publish changes:
 
@@ -152,8 +179,14 @@ edit them there.
 ## Files
 
 ```
-index.html            the app
-app/                  app code (registry.js, app.js, style.css)
+index.html            Characters page (start page)
+hexa.html             HEXA Planner
+bosses.html           Boss Schedule
+app/site.js, site.css    shared menu, helpers and styles
+app/party.js          party data (local, or live via Firebase); firebase-config.js holds the project config
+app/roster.*, hexa.*, bosses.*   one script + stylesheet per page
+data/bosses.js        boss name suggestions for the schedule
+database.rules.json   Firebase Realtime Database rules
 data/hexa-costs.js    HEXA cost tables
 data/classes/         one file per class + index.js (load order)
 data/icons/           node icons

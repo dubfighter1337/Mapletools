@@ -1,82 +1,14 @@
-:root {
-  --bg: #0b1020;
-  --bg-2: #111832;
-  --panel: #151d3a;
-  --panel-2: #1b2547;
-  --line: #27335e;
-  --text: #e8ecf8;
-  --muted: #8f9bc0;
-  --accent: #22e3d2;
-  --accent-ink: #062a28;
-  --tile: #0f1630;
-  --c-skill: #f2b84b;
-  --c-mastery: #a983ff;
-  --c-boost: #4c9dff;
-  --c-common: #46c98b;
-  --c-stat: #f08a5d;
-  --c-shinestone: #ff6fb5;
-  --c-utility: #8a94a6;
-  --c-special: #6d7690;
-  --erda: #7fd3ff;
-  --frag: #c9a6ff;
-  --radius: 14px;
-  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  color-scheme: dark;
-}
+/* HEXA planner page. Shared colours, buttons, cards and fields live in site.css. */
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #eef1f8;
-    --bg-2: #e3e8f4;
-    --panel: #ffffff;
-    --panel-2: #f3f5fb;
-    --line: #d5dbeb;
-    --text: #18203a;
-    --muted: #5d6888;
-    --accent: #0fb5a6;
-    --accent-ink: #ffffff;
-    --tile: #f6f8fd;
-    --c-skill: #c98a10;
-    --c-mastery: #7a4fe0;
-    --c-boost: #2a74d9;
-    --c-common: #1f9a62;
-    --c-stat: #d0642f;
-    --c-shinestone: #d23f8a;
-    --c-utility: #6c7487;
-    --c-special: #8a90a3;
-    --erda: #1683c5;
-    --frag: #7a4fe0;
-    --shadow: 0 8px 24px rgba(30, 40, 80, .12);
-    color-scheme: light;
-  }
-}
-
-* { box-sizing: border-box; }
-/* Elements toggled with the hidden attribute (tooltip, class picker) must stay hidden even
-   when their class sets a display value. */
-[hidden] { display: none !important; }
-html, body { margin: 0; }
-body {
-  background: radial-gradient(1200px 600px at 20% -10%, var(--bg-2), var(--bg)) fixed;
-  color: var(--text);
-  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  min-height: 100vh;
-}
-button, input, select { font: inherit; color: inherit; }
-.muted { color: var(--muted); }
-.small { font-size: 12px; }
-
-/* ---------- top bar */
+/* ---------- class bar (sticks under the site menu) */
 .topbar {
-  position: sticky; top: 0; z-index: 20;
+  position: sticky; top: var(--sitenav-h); z-index: 20;
   display: flex; align-items: center; gap: 16px;
-  padding: 10px 20px;
+  padding: 8px 20px;
   background: color-mix(in srgb, var(--bg) 85%, transparent);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
-.brand-mark { color: var(--accent); font-size: 18px; }
 .tabs {
   position: relative; /* offset parent for keeping the active tab in view */
   display: flex; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; padding-bottom: 2px;
@@ -119,17 +51,6 @@ button, input, select { font: inherit; color: inherit; }
 .picker-empty { padding: 8px; }
 .sel-ko { margin: -6px 0 10px; }
 
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 7px 12px; border-radius: 9px; border: 1px solid var(--line);
-  background: var(--panel-2); cursor: pointer; white-space: nowrap;
-}
-.btn:hover:not(:disabled) { border-color: var(--accent); }
-.btn:disabled { opacity: .4; cursor: default; }
-.btn.ghost { background: transparent; }
-.btn.small { padding: 5px 10px; font-size: 13px; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-
 /* ---------- layout */
 .layout {
   display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px;
@@ -141,10 +62,6 @@ button, input, select { font: inherit; color: inherit; }
 .class-meta { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
 .board-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .field-inline { display: flex; align-items: center; gap: 8px; color: var(--muted); }
-select, input[type=number] {
-  background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 6px 10px;
-}
-select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .hint { color: var(--muted); font-size: 12px; margin: 12px 2px 0; }
 
 .board {
@@ -234,14 +151,6 @@ select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1p
 
 /* ---------- sidebar */
 .sidebar { display: flex; flex-direction: column; gap: 14px; }
-.card {
-  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 14px 16px; box-shadow: var(--shadow);
-}
-.card-title {
-  margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted);
-  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
-}
 .step-count { text-transform: none; letter-spacing: 0; font-size: 12px; font-variant-numeric: tabular-nums; }
 .next-card { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
 .next-main {
@@ -255,8 +164,6 @@ select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1p
 .node-xs .mono { font-size: 11px; }
 .next-costs { display: flex; gap: 18px; flex-wrap: wrap; margin: 12px 0 4px; }
 .next-costs > div { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
-.note { margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--panel-2); font-size: 12px; color: var(--muted); }
-.btn-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .done-text { color: var(--accent); font-weight: 600; margin: 0; }
 
 .cost { display: inline-flex; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -270,15 +177,8 @@ select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1p
 .stepper { display: flex; gap: 6px; margin-bottom: 12px; }
 .stepper .btn { min-width: 38px; padding: 6px 8px; }
 .stepper input { width: 64px; text-align: center; }
-.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; font-size: 13px; }
-.kv dt { color: var(--muted); }
-.kv dd { margin: 0; text-align: right; }
 .eta dd { display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
 .eta-days { color: var(--muted); font-size: 12px; min-width: 76px; text-align: right; }
-
-.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
-.field input { width: 100%; color: var(--text); font-size: 14px; }
 
 .ahead { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .ahead-row {
@@ -293,7 +193,7 @@ select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1p
 .bar { height: 10px; border-radius: 999px; background: var(--panel-2); overflow: hidden; margin-bottom: 12px; border: 1px solid var(--line); }
 .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--c-boost), var(--accent)); border-radius: inherit; }
 
-/* ---------- tooltip, errors */
+/* ---------- tooltip */
 .tip {
   position: fixed; z-index: 50; pointer-events: none;
   display: flex; flex-direction: column; gap: 3px; max-width: 260px;
@@ -301,23 +201,18 @@ select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1p
   background: var(--panel-2); border: 1px solid var(--line); box-shadow: var(--shadow);
 }
 .tip strong { font-size: 13px; }
-.load-error {
-  position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 60;
-  padding: 12px 14px; border-radius: 10px; background: #5a1d2a; color: #ffdfe4; border: 1px solid #a33a50;
-}
 
 /* ---------- narrow screens */
 @media (max-width: 1000px) {
   .layout { grid-template-columns: minmax(0, 1fr); padding: 16px; }
-  .topbar { flex-wrap: wrap; padding: 10px 16px; gap: 8px 12px; }
+  .topbar { flex-wrap: wrap; padding: 8px 16px; gap: 8px 12px; }
   .tabs { order: 3; flex-basis: 100%; }
   .picker { order: 2; margin-left: auto; }
 }
 @media (max-width: 420px) {
-  .picker-panel { position: fixed; top: 64px; left: 12px; right: 12px; width: auto; }
+  .picker-panel { position: fixed; top: 116px; left: 12px; right: 12px; width: auto; }
 }
 @media (max-width: 560px) {
-  .brand-name { display: none; }
   .board { padding: 12px; }
   .board-hexa { grid-template-columns: minmax(0, 1fr); }
   .hexa-nodes { gap: 14px 8px; }

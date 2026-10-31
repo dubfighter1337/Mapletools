@@ -294,7 +294,7 @@
     if (current.importedOn) bits.push(`imported ${esc(current.importedOn)}`);
     if (current.dataNote) bits.push(esc(current.dataNote));
     $('class-meta').innerHTML = bits.join(' · ');
-    document.title = `${current.name} · 6th Job Planner`;
+    document.title = `${current.name} · HEXA Planner`;
   }
 
   function renderOrderSelect() {
@@ -798,7 +798,9 @@
     D.classes.forEach(prepareClass);
     if (!D.classes.length) return;
     bindEvents();
-    switchClass(state.active);
+    // The roster links here as hexa.html?class=<id> to open a character's class.
+    const fromLink = new URLSearchParams(location.search).get('class');
+    switchClass(D.classes.some((c) => c.id === fromLink) ? fromLink : state.active);
   }
 
   boot();

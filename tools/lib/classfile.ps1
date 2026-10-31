@@ -62,22 +62,39 @@ function Write-ClassFile {
   return $path
 }
 
-# Adds the id to MapleData.classFiles in data/classes/index.js (keeps everything else in that file).
+# One line for data/classes/index.js, read from the class file: id, name, category, system and an
+# emblem icon (the Origin skill), so pages can list classes without loading every class file.
+function Get-ClassListLine([string]$Root, [string]$Id) {
+  $text = [IO.File]::ReadAllText((Join-Path $Root "data/classes/$Id.js"), [Text.Encoding]::UTF8)
+  $field = { param($k) $m = [regex]::Match($text, "(?m)^\s*$k\:\s*""([^""]*)"""); if ($m.Success) { $m.Groups[1].Value } else { '' } }
+  $icon = [regex]::Match($text, '\{ id: "[^"]+", name: "[^"]+"[^\n]*role: "Origin"[^\n]*icon: "([^"]+)"').Groups[1].Value
+  if (-not $icon) { $icon = [regex]::Match($text, '\{ id: "origin", [^\n]*icon: "([^"]+)"').Groups[1].Value }
+  $parts = @("id: $(Js $Id)", "name: $(Js (& $field 'name'))", "category: $(Js (& $field 'category'))", "system: $(Js (& $field 'system'))")
+  if ($icon) { $parts += "icon: $(Js $icon)" }
+  return '  { ' + ($parts -join ', ') + ' },'
+}
+
+# Adds or refreshes the class in MapleData.classList in data/classes/index.js (keeps everything else).
 function Register-Class {
   param([string]$Root, [string]$Id)
   $path = Join-Path $Root 'data/classes/index.js'
   if (-not (Test-Path $path)) {
-    $text = "// Class files to load (data/classes/<id>.js). The importers add new classes here.`n" +
-            "MapleData.classFiles = [];`n" +
+    $text = "// Every class (data/classes/<id>.js), with what pages need to list it. The importers keep this up to date.`n" +
+            "MapleData.classList = [`n];`n" +
+            "MapleData.classFiles = MapleData.classList.map((c) => c.id);`n" +
             "// Classes shown as tabs until a viewer picks their own (at most 15).`n" +
             "MapleData.defaultPinned = [];`n"
     [IO.File]::WriteAllText($path, $text, $Utf8NoBom)
   }
-  $text = [IO.File]::ReadAllText($path)
-  $m = [regex]::Match($text, 'classFiles\s*=\s*\[([^\]]*)\]')
-  $ids = @([regex]::Matches($m.Groups[1].Value, '"([^"]+)"') | ForEach-Object { $_.Groups[1].Value })
-  if ($ids -contains $Id) { return }
-  $ids += $Id
-  $text = $text.Substring(0, $m.Index) + 'classFiles = [' + (($ids | ForEach-Object { Js $_ }) -join ', ') + ']' + $text.Substring($m.Index + $m.Length)
-  [IO.File]::WriteAllText($path, $text, $Utf8NoBom)
+  $lines = New-Object System.Collections.Generic.List[string]
+  foreach ($l in [IO.File]::ReadAllLines($path, [Text.Encoding]::UTF8)) { $lines.Add($l) }
+  $line = Get-ClassListLine $Root $Id
+  $idx = -1; $end = -1; $inList = $false
+  for ($i = 0; $i -lt $lines.Count; $i++) {
+    if ($lines[$i] -match '^MapleData\.classList = \[') { $inList = $true; continue }
+    if ($inList -and $lines[$i] -match '^\];') { $end = $i; break }
+    if ($inList -and $lines[$i] -match "^\s*\{ id: ""$([regex]::Escape($Id))""") { $idx = $i }
+  }
+  if ($idx -ge 0) { $lines[$idx] = $line } elseif ($end -ge 0) { $lines.Insert($end, $line) } else { throw "No MapleData.classList in $path" }
+  [IO.File]::WriteAllText($path, ($lines -join "`n") + "`n", $Utf8NoBom)
 }
