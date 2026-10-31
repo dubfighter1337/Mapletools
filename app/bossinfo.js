@@ -75,9 +75,15 @@
       </article>`;
   }
 
+  // Black Mage first, then by boss level, highest first (its hardest difficulty), then by its best crystal.
+  const topLevel = (b) => Math.max(0, ...modesOf(b).flatMap((m) => [].concat((INFO[B.keyOf(b.id, m)] || {}).level || [])));
+  const topPrice = (b) => Math.max(...Object.values(b.modes));
+  const ORDER = [...B.BOSSES].sort((a, b) => (b.id === 'black_mage') - (a.id === 'black_mage')
+    || topLevel(b) - topLevel(a) || topPrice(b) - topPrice(a));
+
   function render() {
     const q = $('search').value.trim().toLowerCase();
-    const list = B.BOSSES.filter((b) => !q || [b.name, ...(b.aliases || [])].some((n) => n.toLowerCase().includes(q)));
+    const list = ORDER.filter((b) => !q || [b.name, ...(b.aliases || [])].some((n) => n.toLowerCase().includes(q)));
     $('boss-grid').innerHTML = list.map(card).join('') || '<p class="muted">No boss matches that.</p>';
   }
 
