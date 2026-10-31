@@ -8,6 +8,8 @@
 //   characters: { <charId>: { owner: playerId, name, cls, level, cp, updatedAt } }   cp = combat power in millions
 //   schedule:   { groups: { <groupId>: { title, reset, done, doneAt, members: ["c:<charId>" | "n:<guest name>"], createdAt } },
 //                 resets: { daily, weekly, monthly } }   start of the period each reset was last applied for
+//   planner:    { chars: { <charId>: { sel: { <bossId>: { mode, party } }, done: { <bossId>: tickedAt }, hidden } },
+//                 presets: { <presetId>: { name, owner, sel } } }
 window.Party = (function () {
   'use strict';
 
@@ -28,11 +30,13 @@ window.Party = (function () {
   function normalize(v, fallbackName) {
     const d = v || {};
     const s = d.schedule || {};
+    const p = d.planner || {};
     return {
       meta: d.meta || { name: fallbackName || '' },
       players: d.players || {},
       characters: d.characters || {},
       schedule: { groups: s.groups || {}, resets: s.resets || {} },
+      planner: { chars: p.chars || {}, presets: p.presets || {} },
     };
   }
 
@@ -133,9 +137,13 @@ window.Party = (function () {
   function localDataFor(playerId, withSchedule) {
     const local = localDoc();
     const updates = {};
-    for (const [cid, c] of Object.entries(local.characters)) updates[`characters/${cid}`] = { ...c, owner: playerId };
+    for (const [cid, c] of Object.entries(local.characters)) {
+      updates[`characters/${cid}`] = { ...c, owner: playerId };
+      if (local.planner.chars[cid]) updates[`planner/chars/${cid}`] = local.planner.chars[cid];
+    }
     if (withSchedule) {
       for (const [gid, g] of Object.entries(local.schedule.groups)) updates[`schedule/groups/${gid}`] = g;
+      for (const [id, preset] of Object.entries(local.planner.presets)) updates[`planner/presets/${id}`] = { ...preset, owner: playerId };
     }
     return updates;
   }

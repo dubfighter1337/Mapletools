@@ -2,6 +2,8 @@
   'use strict';
 
   const { $, esc } = Site;
+  const B = Bossing;
+  const { periodStart, nextReset, untilText, localTime } = Bossing;
   const MAX_MEMBERS = 6;
   const SECTIONS = [
     { reset: 'weekly', title: 'Weekly bosses' },
@@ -13,24 +15,11 @@
   let editingId = null;     // group open in the dialog (null = new)
   let draft = [];           // members being edited: "c:<charId>" | "n:<guest name>"
   let resetTouched = false; // user picked the reset type themselves in the dialog
+  let coverList = [];       // bosses shown in the dialog's "Ticks in the Boss Planner" list ("lucid:hard")
+  let coverOn = new Set();  // ...and the ones ticked there
+  let coversTouched = false;
 
   // ------------------------------------------------------------ resets (UTC, like the game)
-
-  function periodStart(kind, now = Date.now()) {
-    const d = new Date(now);
-    const y = d.getUTCFullYear(), m = d.getUTCMonth(), day = d.getUTCDate();
-    if (kind === 'daily') return Date.UTC(y, m, day);
-    if (kind === 'monthly') return Date.UTC(y, m, 1);
-    const sinceThursday = (d.getUTCDay() - 4 + 7) % 7; // weekly reset: Thursday 00:00 UTC
-    return Date.UTC(y, m, day - sinceThursday);
-  }
-
-  function nextReset(kind, now = Date.now()) {
-    const start = new Date(periodStart(kind, now));
-    if (kind === 'daily') return start.getTime() + 864e5;
-    if (kind === 'monthly') return Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1);
-    return start.getTime() + 7 * 864e5;
-  }
 
   // Unticks groups whose reset period has started since they were ticked. Safe if several
   // party members' pages do it at once: they all write the same values.
@@ -50,13 +39,6 @@
     }
     if (Object.keys(updates).length) Party.update(updates).catch((err) => console.warn(err));
   }
-
-  function untilText(ts) {
-    const ms = Math.max(0, ts - Date.now());
-    const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60;
-    return d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : `${m}m`;
-  }
-  const localTime = (ts) => new Date(ts).toLocaleString([], { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
   // ------------------------------------------------------------ helpers
 
@@ -110,6 +92,14 @@
     $('stats').innerHTML = chips.join('');
   }
 
+  // Groups that clear several bosses (Ctene) list them under the name; one boss is already in the name.
+  function coversLine(g) {
+    const covers = B.coversOf(g);
+    if (covers.length < 2) return '';
+    const names = covers.map(B.label).join(', ');
+    return `<p class="group-covers" title="Ticking this group ticks these bosses in the Boss Planner:\n${esc(covers.map(B.label).join('\n'))}">${covers.length} bosses: ${esc(names)}</p>`;
+  }
+
   function groupCard(g) {
     const members = g.members || [];
     const cp = members.reduce((sum, ref) => sum + (Number(member(ref).cp) || 0), 0);
@@ -118,9 +108,11 @@
         <header class="group-head">
           <button class="done-toggle" data-done="${esc(g.id)}" aria-pressed="${g.done ? 'true' : 'false'}"
             title="${g.done ? 'Done. Click to untick' : 'Mark as done'}">✓</button>
+          ${B.coversOf(g).length ? B.iconImg(B.parse(B.coversOf(g)[0]).id) : ''}
           <h3 title="${esc(g.title)}">${esc(g.title)}</h3>
           <button class="btn ghost edit-btn" data-edit="${esc(g.id)}">Edit</button>
         </header>
+        ${coversLine(g)}
         <ul class="members">
           ${members.length ? members.map((ref) => `<li class="${ref.startsWith('n:') ? 'is-guest' : ''}" title="${esc(memberTitle(ref))}">${memberRow(ref, true)}</li>`).join('')
             : '<li class="empty">No members yet</li>'}
@@ -162,14 +154,45 @@
   // ------------------------------------------------------------ group dialog
 
   function fillPresets() {
-    Site.combo($('g-title'), (MapleData.bosses || [])
-      .flatMap((b) => b.modes.map((m) => ({ value: `${m} ${b.name}`, hint: b.reset === 'monthly' ? 'Monthly' : '' }))));
+    Site.combo($('g-title'), [
+      ...B.BUNDLES.map((x) => ({ value: x.name, hint: `${x.bosses.length} bosses` })),
+      ...B.allKeys().map((k) => ({ value: B.label(k), hint: B.resetOf(B.parse(k).id) === 'monthly' ? 'Monthly' : '' })),
+    ]);
+    Site.combo($('g-cover-add'), B.allKeys().map((k) => B.label(k)));
   }
 
   function guessReset(title) {
-    if (/^bm\b|black mage/i.test(title)) return 'monthly';
-    const preset = (MapleData.bosses || []).find((b) => title.toLowerCase().includes(b.name.toLowerCase()));
-    return (preset && preset.reset) || 'weekly';
+    return B.guessCovers(title).some((k) => B.resetOf(B.parse(k).id) === 'monthly') ? 'monthly' : 'weekly';
+  }
+
+  // ------------------------------------------------------------ "Ticks in the Boss Planner"
+
+  function coversFromTitle() {
+    coverList = B.guessCovers($('g-title').value);
+    coverOn = new Set(coverList);
+    renderCovers();
+  }
+
+  function renderCovers() {
+    const bundle = B.bundleFor($('g-title').value);
+    $('g-covers').innerHTML = coverList.map((k) => {
+      return `<label class="cover-chip ${coverOn.has(k) ? 'is-on' : ''}"><input type="checkbox" data-cover="${esc(k)}" ${coverOn.has(k) ? 'checked' : ''}>${
+        B.iconImg(B.parse(k).id)}${esc(B.label(k))}</label>`;
+    }).join('');
+    $('g-covers-note').textContent = bundle && coverList.length > 1
+      ? `· untick the ones this group doesn't do`
+      : coverList.length ? '' : '· pick a boss as the name, or add bosses below';
+  }
+
+  function addCover(text) {
+    const key = B.allKeys().find((k) => B.label(k).toLowerCase() === text.trim().toLowerCase());
+    if (!key) return false;
+    if (!coverList.includes(key)) coverList.push(key);
+    coverOn.add(key);
+    coversTouched = true;
+    $('g-cover-add').value = '';
+    renderCovers();
+    return true;
   }
 
   function renderDraft() {
@@ -208,6 +231,12 @@
     $('g-reset').value = g ? g.reset || 'weekly' : 'weekly';
     resetTouched = !!g;
     draft = g ? [...(g.members || [])] : [];
+    // A bundle group lists every boss of the bundle, so a boss left out can be ticked again.
+    coversTouched = !!g;
+    coverList = g ? [...new Set([...B.guessCovers(g.title), ...B.coversOf(g)])] : [];
+    coverOn = new Set(g ? B.coversOf(g) : []);
+    renderCovers();
+    $('g-cover-add').value = '';
     $('g-guest').value = '';
     $('g-delete').hidden = !g;
     renderDraft();
@@ -229,10 +258,12 @@
     if (!title) return;
     const id = editingId || Site.uid('g');
     const before = editingId ? doc.schedule.groups[editingId] : null;
+    const covers = coverList.filter((k) => coverOn.has(k));
     Party.update({
       [`schedule/groups/${id}`]: {
         title: title.slice(0, 40),
         reset: $('g-reset').value,
+        covers: covers.length ? covers : false,
         done: before ? !!before.done : false,
         doneAt: before && before.done ? before.doneAt || Date.now() : null,
         members: draft,
@@ -278,7 +309,25 @@
     });
     $('group-form').addEventListener('submit', saveGroup);
     $('g-delete').addEventListener('click', deleteGroup);
-    $('g-title').addEventListener('input', () => { if (!resetTouched) $('g-reset').value = guessReset($('g-title').value); });
+    $('g-title').addEventListener('input', () => {
+      if (!resetTouched) $('g-reset').value = guessReset($('g-title').value);
+      if (!coversTouched) coversFromTitle();
+    });
+    $('g-covers').addEventListener('change', (e) => {
+      const k = e.target.dataset.cover;
+      if (!k) return;
+      if (e.target.checked) coverOn.add(k); else coverOn.delete(k);
+      coversTouched = true;
+      renderCovers();
+    });
+    // A pick from the suggestion list comes in as a script-made 'input' event; typed text is added on Enter.
+    $('g-cover-add').addEventListener('input', (e) => { if (!e.isTrusted) addCover(e.target.value); });
+    $('g-cover-add').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.value.trim()) {
+        e.preventDefault();
+        if (!addCover(e.target.value)) Site.toast('Pick a boss from the list');
+      }
+    });
     $('g-reset').addEventListener('change', () => { resetTouched = true; });
     $('g-add-char').addEventListener('change', (e) => {
       if (e.target.value && draft.length < MAX_MEMBERS) draft.push(e.target.value);

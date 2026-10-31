@@ -5,8 +5,9 @@ window.Site = (function () {
 
   const TOOLS = [
     { id: 'roster', href: 'index.html', label: 'Characters', desc: 'Your party and everyone\'s characters.' },
-    { id: 'hexa', href: 'hexa.html', label: 'HEXA Planner', desc: 'Click your 6th job nodes up and see what to level next.' },
-    { id: 'bosses', href: 'bosses.html', label: 'Boss Schedule', desc: 'Weekly and monthly boss groups, ticked off live with your party.' },
+    { id: 'hexa', href: 'hexa.html', label: 'HEXA Planner', short: 'HEXA', desc: 'Click your 6th job nodes up and see what to level next.' },
+    { id: 'bosses', href: 'bosses.html', label: 'Boss Schedule', short: 'Schedule', desc: 'Weekly and monthly boss groups, ticked off live with your party.' },
+    { id: 'planner', href: 'planner.html', label: 'Boss Planner', short: 'Planner', desc: 'Each character\'s weekly bosses, crystals and mesos. Ticks itself from the schedule.' },
   ];
   const PARTY_KEY = 'mapletools-party';
 
@@ -192,6 +193,16 @@ window.Site = (function () {
     return n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 2).replace(/\.?0+$/, '')}b` : `${Math.round(n)}m`;
   }
 
+  // Mesos, short: 762.1m, 5.23b, 81k.
+  function formatMeso(n) {
+    n = Number(n) || 0;
+    const trim = (s) => s.replace(/\.0+$|(\.\d*?)0+$/, '$1');
+    if (n >= 1e9) return `${trim((n / 1e9).toFixed(2))}b`;
+    if (n >= 1e6) return `${trim((n / 1e6).toFixed(1))}m`;
+    if (n >= 1e3) return `${Math.round(n / 1e3)}k`;
+    return String(Math.round(n));
+  }
+
   function classInfo(id) {
     const list = (window.MapleData && MapleData.classList) || [];
     return list.find((c) => c.id === id) || null;
@@ -249,9 +260,10 @@ window.Site = (function () {
     const page = el.dataset.page;
     const party = partyInfo();
     el.innerHTML = `
-      <a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true">◆</span><span>MapleTools</span></a>
+      <a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><img class="brand-shroom" src="${asset('app/mushroom.png')}" alt=""><span>◆</span></span><span>MapleTools</span></a>
       <nav class="site-links" aria-label="Tools">
-        ${TOOLS.map((t) => `<a href="${t.href}" class="${t.id === page ? 'is-active' : ''}">${esc(t.label)}</a>`).join('')}
+        ${TOOLS.map((t) => `<a href="${t.href}" class="${t.id === page ? 'is-active' : ''}">${t.short
+          ? `<span class="l-full">${esc(t.label)}</span><span class="l-short">${esc(t.short)}</span>` : esc(t.label)}</a>`).join('')}
       </nav>
       <a class="party-chip" href="index.html#party" title="${party ? `Party code ${formatCode(party.code)}` : 'Not in a party'}">
         <span class="dot" id="party-dot"></span><span class="chip-label">${esc(party ? party.name || 'Party' : 'No party')}</span>
@@ -269,6 +281,6 @@ window.Site = (function () {
 
   return {
     TOOLS, $, esc, asset, readJSON, writeJSON, partyInfo, setPartyInfo, uid, loadScript, toast, combo, formatCode, formatCp,
-    formatNumber, classInfo, SYMBOLS, symbolTotals, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
+    formatNumber, formatMeso, classInfo, SYMBOLS, symbolTotals, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
   };
 })();

@@ -7,8 +7,11 @@ Tools for a MapleStory party, live at https://dubfighter1337.github.io/Mapletool
 | **Characters** (`index.html`, start page) | The party roster: add a character by name (NA/EU), with picture, level, class, combat power or HEXA converted, and all Arcane/Sacred/Grand Sacred symbols. Create or join a party here. |
 | **HEXA Planner** (`hexa.html`) | Talent-calculator style 6th job planner: what to level next, what it costs, how many days of fragments. |
 | **Boss Schedule** (`bosses.html`) | Boss groups with their members, ticked off when done; resets weekly (Thursday 00:00 UTC) or monthly (Black Mage, 1st of the month). |
+| **Boss Planner** (`planner.html`) | Per character: the weekly bosses, crystals (14 per character, 180 per world) and mesos. Ticking a schedule group ticks its bosses here. |
 
-The menu on every page comes from `TOOLS` in `app/site.js`; add a new tool there.
+The menu on every page comes from `TOOLS` in `app/site.js`; add a new tool there. The logo is
+`app/mushroom.png`, made from a MapleStory mushroom picture by `tools/make-logo.ps1` (recolours it to the
+site's teal).
 
 ## Parties (live sharing)
 
@@ -36,6 +39,28 @@ Sacred counts toward SAC). **↻** on a card updates level, class and picture fr
 
 The lines on each card come from `CARD_ROWS` at the top of `app/roster.js`. To add a line, add a row
 there and a field in the character form (`index.html`, and `openCharDialog`/`saveChar` in `roster.js`).
+
+## Boss Schedule and Boss Planner
+
+A schedule group has a name, a reset, up to 6 members, and the bosses it clears ("Ticks in the Boss
+Planner"). Naming a group after a boss (`Hard Lucid 2`, `HLucid`, `C Gloom`) links that boss. Naming it
+after a bundle (`Ctene ...`) lists the bundle's bosses as checkboxes: untick the ones that group doesn't
+do (for example Lotus and Damien when those are soloed), or add more with "+ Add a boss".
+
+When a group is ticked in the schedule, those bosses are ticked in the Boss Planner for every member
+character, and the group's member count is used as the party size (the crystal's value is split). In the
+planner each player picks their characters' bosses (**Bosses** on a card: difficulty, party size, presets,
+max 14 weekly) and ticks what they cleared on their own. Ticks clear themselves at the weekly or monthly
+reset.
+
+Boss data is in `data/bosses.js`: each boss's difficulties and crystal price (Heroic worlds, from the
+in-game price list), the bundles (Ctene) and the ready-made presets. Add a boss or update a price there;
+`id`s are saved in party data, so don't rename them. Limits, as in game: 14 weekly-boss crystals per
+character, 180 crystals per world (weekly and monthly; daily bosses count too but belong to the dailies tool).
+
+Patch v.272 (November 11, 2026) is prepared but switched off: after the patch, set
+`MapleData.bossPatchV272 = true` in `data/bosses.js` (Easy Cygnus is removed; Normal Cygnus, Hard Hilla and
+Chaos Pink Bean become daily bosses and leave the weekly list).
 
 ### Character lookup (Nexon rankings relay)
 
@@ -212,11 +237,14 @@ edit them there.
 index.html            Characters page (start page)
 hexa.html             HEXA Planner
 bosses.html           Boss Schedule
+planner.html          Boss Planner
 app/site.js, site.css    shared menu, helpers and styles
 app/party.js          party data (local, or live via Firebase)
+app/bossing.js        boss helpers shared by the schedule and planner (resets, which bosses a group clears)
 app/config.js         Firebase config + character lookup relay URL
-app/roster.*, hexa.*, bosses.*   one script + stylesheet per page
-data/bosses.js        boss name suggestions for the schedule
+app/roster.*, hexa.*, bosses.*, planner.*   one script + stylesheet per page
+app/mushroom.png      logo and tab icon (tools/make-logo.ps1)
+data/bosses.js        bosses, crystal prices, bundles (Ctene) and presets
 database.rules.json   Firebase Realtime Database rules
 tools/lookup-relay.gs  character lookup relay (Google Apps Script)
 data/hexa-costs.js    HEXA cost tables
@@ -229,6 +257,8 @@ tools/fetch-icons.ps1   wiki -> skill icons
 tools/lib/              shared helpers (xlsx reader, class file writer)
 tools/serve.ps1       optional local web server (http://localhost:8765)
 tools/bump-version.ps1  new ?v= stamp on the pages' links (run before publishing)
+tools/make-logo.ps1   mushroom picture -> teal logo
+tools/fetch-boss-icons.ps1  wiki -> data/icons/bosses/<id>.png
 ```
 
 ## Credits
