@@ -1,95 +1,15 @@
-/* Boss Planner page. Kept compact: one short row per boss. */
-.stat.is-over { border-color: var(--danger); }
-.stat.is-over b { color: var(--danger); }
-
-.plan-player {
-  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 12px 14px; box-shadow: var(--shadow); margin-bottom: 16px;
-}
-.plan-player.is-me { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
-.plan-player-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-.plan-player-head h2 { margin: 0; font-size: 16px; }
-.plan-player-head .you { color: var(--accent); font-size: 12px; font-weight: 600; margin-left: 6px; }
-.plan-player-head .sum { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
-.plan-player-head .spacer { flex: 1; }
-
-.plan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; align-items: start; }
-.plan-card {
-  display: flex; flex-direction: column; min-width: 0;
-  border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); overflow: hidden;
-}
-.plan-card.is-done { border-color: var(--good); }
-.plan-card.is-hidden { opacity: .7; }
-.plan-head {
-  display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 8px;
-  padding: 6px 10px; border-bottom: 1px solid var(--line);
-}
-.plan-avatar { width: 36px; height: 36px; object-fit: cover; object-position: center 30%; border-radius: 8px; background: var(--tile); display: block; }
-.plan-avatar.is-emblem { object-fit: contain; padding: 3px; }
-.plan-who { min-width: 0; line-height: 1.25; }
-.plan-who strong { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.plan-who span { display: block; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.plan-count {
-  font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; font-variant-numeric: tabular-nums;
-  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent);
-}
-.plan-count.is-over { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
-.plan-card.is-done .plan-count { background: var(--good); color: var(--bg); }
-
-.plan-rows { list-style: none; margin: 0; padding: 4px; display: flex; flex-direction: column; }
-.plan-row {
-  display: grid; grid-template-columns: 18px 20px minmax(0, 1fr) 12px auto 44px; align-items: center; gap: 7px;
-  padding: 2px 6px; border-radius: 7px; font-size: 13px; min-height: 26px;
-}
-.plan-row:hover { background: var(--panel); }
-.plan-row .boss-icon { width: 20px; height: 20px; border-radius: 5px; }
-.r-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Boss Planner page (card and dialog frame: app/tracker.css). Kept compact: one short row per boss. */
+.plan-row { grid-template-columns: 18px 20px minmax(0, 1fr) 12px auto 44px; }
 .r-name small { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .4px; }
 .r-link { color: var(--accent); display: grid; place-items: center; }
 .r-party { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .r-val { text-align: right; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
-.plan-row.is-done .r-name { color: var(--muted); }
 .plan-row.is-done .r-val { color: var(--good); }
 .plan-row.is-extra { opacity: .45; }
-
-.tick {
-  width: 18px; height: 18px; padding: 0; border-radius: 50%; border: 2px solid var(--line); background: none;
-  color: transparent; font-size: 10px; font-weight: 800; line-height: 1; display: grid; place-items: center; cursor: pointer;
-}
-.tick:hover:not(:disabled) { border-color: var(--good); }
-.tick[aria-pressed="true"] { background: var(--good); border-color: var(--good); color: var(--bg); }
-.tick:disabled { cursor: default; }
-
-.plan-foot {
-  display: flex; align-items: center; gap: 12px; padding: 5px 10px; border-top: 1px solid var(--line); font-size: 12px;
-}
-.plan-foot .spacer { flex: 1; }
 .plan-meso { color: var(--muted); font-variant-numeric: tabular-nums; }
 .plan-meso b { color: var(--text); }
-.plan-empty { margin: 0; padding: 10px; color: var(--muted); font-size: 13px; }
 
-/* ---------- boss picker */
-.pick-dialog { width: min(640px, calc(100vw - 32px)); }
-.pick-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-.pick-head h2 { margin: 0; }
-.pick-count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-.pick-count b { color: var(--text); }
-.pick-count b.is-full { color: var(--accent); }
-.pick-tools { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
-.pick-tools input[type=search] { width: 100%; color: var(--text); font-size: 14px; }
-.preset-list { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.preset { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--panel-2); overflow: hidden; }
-.preset button { border: 0; background: none; padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--text); }
-.preset button:hover { color: var(--accent); }
-.preset .preset-x { padding: 4px 8px 4px 0; color: var(--muted); }
-.preset-new { display: inline-flex; gap: 6px; align-items: center; }
-.preset-new input { width: 150px; font-size: 13px; color: var(--text); }
-
-.pick-list { max-height: min(56vh, 520px); overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
-.pick-section h3 {
-  position: sticky; top: 0; z-index: 1; margin: 0; padding: 5px 10px; font-size: 11px; text-transform: uppercase;
-  letter-spacing: .6px; color: var(--muted); background: var(--panel); border-bottom: 1px solid var(--line);
-}
+/* ---------- boss picker rows */
 .pick-row {
   display: grid; grid-template-columns: minmax(0, 1fr) 92px auto 52px; align-items: center; gap: 8px;
   padding: 3px 10px; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); font-size: 13px;
@@ -107,7 +27,6 @@
 .pick-row.is-on .pick-val { color: var(--text); }
 
 @media (max-width: 640px) {
-  .plan-grid { grid-template-columns: minmax(0, 1fr); }
   /* Phones: name and value on one line; difficulty and party under it, only for picked bosses. */
   .pick-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name val" "ctrl ctrl"; gap: 2px 8px; padding: 3px 8px; }
   .pick-name { grid-area: name; }

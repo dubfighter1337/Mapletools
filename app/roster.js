@@ -331,7 +331,7 @@
   function deleteChar() {
     const c = doc.characters[editingId];
     if (!c || !confirm(`Delete ${c.name}? It's also taken out of any boss groups.`)) return;
-    const updates = { [`characters/${editingId}`]: null, [`planner/chars/${editingId}`]: null };
+    const updates = { [`characters/${editingId}`]: null, [`planner/chars/${editingId}`]: null, [`tasks/chars/${editingId}`]: null };
     for (const [gid, g] of Object.entries(doc.schedule.groups)) {
       const members = g.members || [];
       if (members.includes(`c:${editingId}`)) updates[`schedule/groups/${gid}/members`] = members.filter((m) => m !== `c:${editingId}`);

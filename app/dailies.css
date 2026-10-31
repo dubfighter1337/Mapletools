@@ -1,0 +1,51 @@
+/* Dailies page (card and dialog frame: app/tracker.css). One short row per task, grouped by reset. */
+.page-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.hide-done { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.hide-done input { accent-color: var(--accent); }
+
+.stat.timers { display: grid; grid-template-columns: auto auto; gap: 1px 14px; align-content: center; }
+.stat.timers .t { display: contents; }
+.stat.timers .t span { color: var(--muted); font-size: 12px; }
+.stat.timers .t b { font-size: 14px; text-align: right; }
+
+.plan-row { grid-template-columns: 18px 20px minmax(0, 1fr); }
+.r-name small { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tick.is-partial { border-color: var(--good); color: var(--good); }
+.task-badge {
+  width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; flex: none;
+  font-size: 11px; font-weight: 800; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--tile));
+}
+img.boss-icon[src*="/symbols/"] { object-fit: contain; background: none; }
+
+.task-sec + .task-sec { border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.task-sec-head {
+  display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 6px 10px 0;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
+}
+.task-sec-head .n { font-variant-numeric: tabular-nums; }
+.task-sec-head .link-btn { margin-left: auto; text-transform: none; letter-spacing: 0; font-size: 11px; }
+.task-sec .plan-rows { padding-top: 2px; }
+
+/* ---------- task picker: chips per group */
+.pick-section h3 .muted { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.task-group { padding: 6px 10px; }
+.task-group + .task-group { border-top: 1px solid color-mix(in srgb, var(--line) 45%, transparent); }
+.tg-head { display: flex; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
+.tg-head .link-btn { font-size: 11px; font-weight: 400; }
+.tg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.task-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 6px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--panel-2); font-size: 12px; color: var(--muted);
+}
+.task-chip input { margin: 0; accent-color: var(--accent); }
+.task-chip .boss-icon, .task-chip .task-badge { width: 18px; height: 18px; border-radius: 4px; font-size: 10px; }
+.task-chip.is-on { color: var(--text); border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); background: color-mix(in srgb, var(--accent) 9%, var(--panel-2)); }
+.task-chip.is-max { opacity: .6; }
+.task-chip small { font-size: 10px; font-weight: 700; color: var(--good); text-transform: uppercase; }
+.chip-x { border: 0; background: none; color: var(--muted); padding: 0 0 0 2px; cursor: pointer; font-size: 14px; line-height: 1; }
+.chip-x:hover { color: var(--danger); }
+
+@media (max-width: 640px) {
+  .page-tools { width: 100%; }
+  .stat.timers { grid-column: span 2; }
+}

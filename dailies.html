@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dailies · MapleTools</title>
+  <link rel="icon" type="image/png" href="app/mushroom.png?v=2610311841">
+  <link rel="stylesheet" href="app/site.css?v=2610311841">
+  <link rel="stylesheet" href="app/tracker.css?v=2610311841">
+  <link rel="stylesheet" href="app/dailies.css?v=2610311841">
+</head>
+<body>
+  <header class="sitenav" id="sitenav" data-page="dailies"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Dailies</h1>
+        <p id="dailies-sub"></p>
+      </div>
+      <div class="page-tools">
+        <div class="seg" id="filter" aria-label="Show characters">
+          <button data-filter="all">All</button>
+          <button data-filter="open">Unfinished</button>
+          <button data-filter="done">Finished</button>
+          <button data-filter="hidden">Hidden</button>
+        </div>
+        <label class="hide-done"><input type="checkbox" id="hide-done"> Hide ticked</label>
+      </div>
+    </div>
+    <section id="stats" class="stat-row"></section>
+    <div id="players"></div>
+  </main>
+
+  <dialog id="pick-dialog" class="dialog pick-dialog">
+    <form id="pick-form" method="dialog">
+      <header class="pick-head">
+        <h2 id="pick-title">Tasks</h2>
+        <span id="pick-count" class="pick-count"></span>
+      </header>
+      <div class="pick-tools">
+        <input id="pick-search" type="search" placeholder="Search tasks" autocomplete="off" aria-label="Search tasks">
+        <div id="pick-presets" class="preset-list"></div>
+      </div>
+      <div id="pick-list" class="pick-list task-pick"></div>
+      <div class="dialog-actions">
+        <button type="button" id="pick-clear" class="btn ghost">Clear all</button>
+        <button type="button" id="pick-custom" class="btn ghost">+ Custom task</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="custom-dialog" class="dialog">
+    <form id="custom-form" method="dialog">
+      <h2>Create custom task</h2>
+      <div class="fields">
+        <label class="field span-2"><span>Task name</span>
+          <input id="custom-name" type="text" maxlength="40" required autocomplete="off" placeholder="e.g. Kritias invasion"></label>
+        <label class="field span-2"><span>Resets</span>
+          <select id="custom-reset">
+            <option value="daily">Daily (00:00 UTC)</option>
+            <option value="monday">Monday (00:00 UTC)</option>
+            <option value="wednesday">Wednesday (00:00 UTC, events)</option>
+            <option value="weekly">Weekly (Thursday 00:00 UTC)</option>
+            <option value="monthly">Monthly (1st of the month)</option>
+          </select></label>
+      </div>
+      <p class="note">Custom tasks are shared with your party, so others can pick them too.</p>
+      <div class="dialog-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app/registry.js?v=2610311841"></script>
+  <script src="app/site.js?v=2610311841"></script>
+  <script src="data/classes/index.js?v=2610311841"></script>
+  <script src="data/patches.js?v=2610311841"></script>
+  <script src="data/tasks.js?v=2610311841"></script>
+  <script src="app/config.js?v=2610311841"></script>
+  <script src="app/party.js?v=2610311841"></script>
+  <script src="app/bossing.js?v=2610311841"></script>
+  <script src="app/dailies.js?v=2610311841"></script>
+</body>
+</html>

@@ -8,6 +8,7 @@ Tools for a MapleStory party, live at https://dubfighter1337.github.io/Mapletool
 | **HEXA Planner** (`hexa.html`) | Talent-calculator style 6th job planner: what to level next, what it costs, how many days of fragments. |
 | **Boss Schedule** (`bosses.html`) | Boss groups with their members, ticked off when done; resets weekly (Thursday 00:00 UTC) or monthly (Black Mage, 1st of the month). |
 | **Boss Planner** (`planner.html`) | Per character: the weekly bosses, crystals (14 per character, 180 per world) and mesos. Ticking a schedule group ticks its bosses here. |
+| **Dailies** (`dailies.html`) | Per character: daily, weekly and monthly tasks (symbols, Monster Park, Ursus, daily bosses, guild, ...) plus custom ones. |
 
 The menu on every page comes from `TOOLS` in `app/site.js`; add a new tool there. The logo is
 `app/mushroom.png`, made from a MapleStory mushroom picture by `tools/make-logo.ps1` (recolours it to the
@@ -58,9 +59,23 @@ in-game price list), the bundles (Ctene) and the ready-made presets. Add a boss 
 `id`s are saved in party data, so don't rename them. Limits, as in game: 14 weekly-boss crystals per
 character, 180 crystals per world (weekly and monthly; daily bosses count too but belong to the dailies tool).
 
-Patch v.272 (November 11, 2026) is prepared but switched off: after the patch, set
-`MapleData.bossPatchV272 = true` in `data/bosses.js` (Easy Cygnus is removed; Normal Cygnus, Hard Hilla and
-Chaos Pink Bean become daily bosses and leave the weekly list).
+## Dailies
+
+Per character, the tasks done on a reset besides weekly bossing: symbol dailies and weeklies, Monster Park,
+Ursus (a counter: 3 runs a day), daily bosses, guild, legion, Threads of Fate, 6th job dungeons. Each player
+picks their characters' tasks (**Tasks** on a card: chips per group, "all" skips symbols that are maxed on
+the Characters page, presets and "Same as <character>"), and anyone can add a **custom task** with its own
+reset, shared with the party. Resets: daily 00:00 UTC, Monday, Wednesday (events), Thursday (weekly) and
+the 1st of the month. The task list is `data/tasks.js`.
+
+## Upcoming patches
+
+Patch changes can be prepared in the data and switched on later in `data/patches.js`. v.272
+(November 11, 2026) is ready but switched off; set `v272: true` once it's live:
+- Easy Cygnus is removed; Normal Cygnus, Hard Hilla and Chaos Pink Bean become daily bosses (they leave the
+  Boss Planner and appear under Daily Bosses on the Dailies page).
+- Monster Park Extreme is removed; the weekly "Extreme Monster Parker" quest and buying Extreme Momo are added.
+- Ursus becomes once a day with 2x mesos all day (the Ursus countdown disappears).
 
 ### Character lookup (Nexon rankings relay)
 
@@ -238,13 +253,17 @@ index.html            Characters page (start page)
 hexa.html             HEXA Planner
 bosses.html           Boss Schedule
 planner.html          Boss Planner
+dailies.html          Dailies
 app/site.js, site.css    shared menu, helpers and styles
 app/party.js          party data (local, or live via Firebase)
 app/bossing.js        boss helpers shared by the schedule and planner (resets, which bosses a group clears)
 app/config.js         Firebase config + character lookup relay URL
-app/roster.*, hexa.*, bosses.*, planner.*   one script + stylesheet per page
+app/roster.*, hexa.*, bosses.*, planner.*, dailies.*   one script + stylesheet per page
+app/tracker.css       character cards shared by the Boss Planner and Dailies
 app/mushroom.png      logo and tab icon (tools/make-logo.ps1)
 data/bosses.js        bosses, crystal prices, bundles (Ctene) and presets
+data/tasks.js         the Dailies task list
+data/patches.js       upcoming patch switches (v272)
 database.rules.json   Firebase Realtime Database rules
 tools/lookup-relay.gs  character lookup relay (Google Apps Script)
 data/hexa-costs.js    HEXA cost tables
@@ -258,7 +277,7 @@ tools/lib/              shared helpers (xlsx reader, class file writer)
 tools/serve.ps1       optional local web server (http://localhost:8765)
 tools/bump-version.ps1  new ?v= stamp on the pages' links (run before publishing)
 tools/make-logo.ps1   mushroom picture -> teal logo
-tools/fetch-boss-icons.ps1  wiki -> data/icons/bosses/<id>.png
+tools/fetch-wiki-icons.ps1  wiki -> boss and symbol icons (data/icons/bosses, data/icons/symbols)
 ```
 
 ## Credits

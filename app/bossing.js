@@ -1,18 +1,21 @@
-// Boss helpers shared by the Boss Schedule and the Boss Planner: the game's resets, the boss list from
-// data/bosses.js, and which bosses a schedule group clears for which characters.
+// Boss helpers shared by the Boss Schedule, Boss Planner and Dailies: the game's resets, the boss list
+// from data/bosses.js, and which bosses a schedule group clears for which characters.
 // A boss at a difficulty is written as a key: "lucid:hard".
 window.Bossing = (function () {
   'use strict';
 
   // ------------------------------------------------------------ resets (UTC, like the game)
 
+  // Resets on a weekday at 00:00 UTC: the weekly one (bosses, most weeklies) is Thursday.
+  const WEEKDAY = { monday: 1, wednesday: 3, weekly: 4 };
+
   function periodStart(kind, now = Date.now()) {
     const d = new Date(now);
     const y = d.getUTCFullYear(), m = d.getUTCMonth(), day = d.getUTCDate();
     if (kind === 'daily') return Date.UTC(y, m, day);
     if (kind === 'monthly') return Date.UTC(y, m, 1);
-    const sinceThursday = (d.getUTCDay() - 4 + 7) % 7; // weekly reset: Thursday 00:00 UTC
-    return Date.UTC(y, m, day - sinceThursday);
+    const since = (d.getUTCDay() - (WEEKDAY[kind] ?? 4) + 7) % 7;
+    return Date.UTC(y, m, day - since);
   }
 
   function nextReset(kind, now = Date.now()) {
@@ -35,7 +38,7 @@ window.Bossing = (function () {
   const BUNDLES = MapleData.bossBundles || [];
   const byId = Object.fromEntries(BOSSES.map((b) => [b.id, b]));
   const resetOf = (id) => (byId[id] && byId[id].reset) || 'weekly';
-  const icon = (id) => (byId[id] ? byId[id].icon || `data/icons/bosses/${id}.png` : ''); // tools/fetch-boss-icons.ps1
+  const icon = (id) => (byId[id] ? byId[id].icon || `data/icons/bosses/${id}.png` : ''); // tools/fetch-wiki-icons.ps1
   // <img> for a boss icon; one that's missing hides itself instead of showing a broken image.
   const iconImg = (id) => (byId[id]
     ? `<img class="boss-icon" src="${icon(id)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`

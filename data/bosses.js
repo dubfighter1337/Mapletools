@@ -3,7 +3,7 @@
 // (October 2026). Daily bosses belong to the dailies tool, not here.
 // Used by the Boss Schedule's name suggestions and by the Boss Planner.
 // To add a boss or a difficulty, add it here. id is used in saved data, so don't rename one.
-// aliases: other names people use in group names ("BM"). Icons: data/icons/bosses/<id>.png (tools/fetch-boss-icons.ps1).
+// aliases: other names people use in group names ("BM"). Icons: data/icons/bosses/<id>.png (tools/fetch-wiki-icons.ps1).
 MapleData.bosses = [
   { id: 'black_mage', name: 'Black Mage', reset: 'monthly', aliases: ['BM'], modes: { Hard: 4500000000, Extreme: 18000000000 } },
   { id: 'jupiter', name: 'Jupiter', modes: { Normal: 2965000000, Hard: 5953000000 } },
@@ -36,10 +36,9 @@ MapleData.bosses = [
   { id: 'hilla', name: 'Hilla', modes: { Hard: 56250000 } },
 ];
 
-// Patch v.272 (November 11, 2026), prepared but switched off. Set to true once the patch is live:
-// Easy Cygnus is removed, and Normal Cygnus, Hard Hilla and Chaos Pink Bean become daily bosses.
-MapleData.bossPatchV272 = false;
-if (MapleData.bossPatchV272) {
+// Patch v.272 (data/patches.js): Easy Cygnus is removed, and Normal Cygnus, Hard Hilla and Chaos Pink Bean
+// become daily bosses (they move to the Dailies page).
+if (MapleData.patches.v272) {
   MapleData.bosses = MapleData.bosses.filter((b) => !['cygnus', 'hilla', 'pink_bean'].includes(b.id));
 }
 

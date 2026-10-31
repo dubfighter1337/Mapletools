@@ -10,6 +10,8 @@
 //                 resets: { daily, weekly, monthly } }   start of the period each reset was last applied for
 //   planner:    { chars: { <charId>: { sel: { <bossId>: { mode, party } }, done: { <bossId>: tickedAt }, hidden } },
 //                 presets: { <presetId>: { name, owner, sel } } }
+//   tasks:      { chars: { <charId>: { sel: { <taskId>: true }, done: { <taskId>: tickedAt | { n, at } }, hidden } },
+//                 custom: { <taskId>: { name, reset, owner } }, presets: { <presetId>: { name, owner, sel } } }
 window.Party = (function () {
   'use strict';
 
@@ -31,12 +33,14 @@ window.Party = (function () {
     const d = v || {};
     const s = d.schedule || {};
     const p = d.planner || {};
+    const t = d.tasks || {};
     return {
       meta: d.meta || { name: fallbackName || '' },
       players: d.players || {},
       characters: d.characters || {},
       schedule: { groups: s.groups || {}, resets: s.resets || {} },
       planner: { chars: p.chars || {}, presets: p.presets || {} },
+      tasks: { chars: t.chars || {}, custom: t.custom || {}, presets: t.presets || {} },
     };
   }
 
@@ -140,10 +144,14 @@ window.Party = (function () {
     for (const [cid, c] of Object.entries(local.characters)) {
       updates[`characters/${cid}`] = { ...c, owner: playerId };
       if (local.planner.chars[cid]) updates[`planner/chars/${cid}`] = local.planner.chars[cid];
+      if (local.tasks.chars[cid]) updates[`tasks/chars/${cid}`] = local.tasks.chars[cid];
     }
+    // Custom tasks come along (picked tasks would point at them); presets only with the schedule.
+    for (const [id, task] of Object.entries(local.tasks.custom)) updates[`tasks/custom/${id}`] = { ...task, owner: playerId };
     if (withSchedule) {
       for (const [gid, g] of Object.entries(local.schedule.groups)) updates[`schedule/groups/${gid}`] = g;
       for (const [id, preset] of Object.entries(local.planner.presets)) updates[`planner/presets/${id}`] = { ...preset, owner: playerId };
+      for (const [id, preset] of Object.entries(local.tasks.presets)) updates[`tasks/presets/${id}`] = { ...preset, owner: playerId };
     }
     return updates;
   }

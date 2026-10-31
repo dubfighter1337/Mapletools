@@ -4,10 +4,11 @@ window.Site = (function () {
   'use strict';
 
   const TOOLS = [
-    { id: 'roster', href: 'index.html', label: 'Characters', desc: 'Your party and everyone\'s characters.' },
+    { id: 'roster', href: 'index.html', label: 'Characters', short: 'Roster', desc: 'Your party and everyone\'s characters.' },
     { id: 'hexa', href: 'hexa.html', label: 'HEXA Planner', short: 'HEXA', desc: 'Click your 6th job nodes up and see what to level next.' },
     { id: 'bosses', href: 'bosses.html', label: 'Boss Schedule', short: 'Schedule', desc: 'Weekly and monthly boss groups, ticked off live with your party.' },
     { id: 'planner', href: 'planner.html', label: 'Boss Planner', short: 'Planner', desc: 'Each character\'s weekly bosses, crystals and mesos. Ticks itself from the schedule.' },
+    { id: 'dailies', href: 'dailies.html', label: 'Dailies', desc: 'Daily and weekly tasks per character: symbols, Monster Park, Ursus, daily bosses, guild.' },
   ];
   const PARTY_KEY = 'mapletools-party';
 

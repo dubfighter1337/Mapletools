@@ -218,7 +218,7 @@ select:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
 @media (max-width: 640px) {
   .sitenav { gap: 8px; padding: 0 10px; }
   .site-brand > span:last-child { display: none; }
-  .site-links a { padding: 7px 8px; font-size: 13px; }
+  .site-links a { padding: 7px 5px; font-size: 13px; }
   .site-links .l-full { display: none; }
   .seg { display: flex; width: 100%; }
   .seg button { flex: 1; padding: 6px 4px; }
