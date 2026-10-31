@@ -10,6 +10,11 @@ window.Site = (function () {
   ];
   const PARTY_KEY = 'mapletools-party';
 
+  // Pages link their files as app/x.js?v=<stamp> (set by tools/bump-version.ps1), so after an update a
+  // browser can't pair the new page with an old cached file. asset() gives later-loaded files the same stamp.
+  const VERSION = document.currentScript ? new URL(document.currentScript.src).searchParams.get('v') : null;
+  const asset = (path) => (VERSION ? `${path}?v=${VERSION}` : path);
+
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -263,7 +268,7 @@ window.Site = (function () {
   document.addEventListener('DOMContentLoaded', renderNav);
 
   return {
-    TOOLS, $, esc, readJSON, writeJSON, partyInfo, setPartyInfo, uid, loadScript, toast, combo, formatCode, formatCp,
+    TOOLS, $, esc, asset, readJSON, writeJSON, partyInfo, setPartyInfo, uid, loadScript, toast, combo, formatCode, formatCp,
     formatNumber, classInfo, SYMBOLS, symbolTotals, powerLabel, classFromJob, worldName, renderNav, setPartyStatus,
   };
 })();

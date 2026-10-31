@@ -89,12 +89,16 @@ exists on your PC; it's left out of git, so the shared GitHub Pages copy starts 
 The shared copy is this folder pushed to GitHub with Pages turned on. To publish changes:
 
 ```
+powershell -ExecutionPolicy Bypass -File tools\bump-version.ps1
 git add -A
 git commit -m "Update data"
 git push
 ```
 
-GitHub rebuilds the site in a minute or two. Friends' levels are saved in their own browsers.
+`bump-version.ps1` gives the pages' links a new `?v=` stamp. GitHub Pages lets browsers keep files for
+10 minutes, and without a new stamp a friend could get the new page with an old cached script, which breaks
+it until the cache runs out. GitHub rebuilds the site in a minute or two. Friends' levels are saved in their
+own browsers.
 
 ## Adding or changing data
 
@@ -224,6 +228,7 @@ tools/import-metumtam.ps1  Metumtam data.js -> the other 50 classes
 tools/fetch-icons.ps1   wiki -> skill icons
 tools/lib/              shared helpers (xlsx reader, class file writer)
 tools/serve.ps1       optional local web server (http://localhost:8765)
+tools/bump-version.ps1  new ?v= stamp on the pages' links (run before publishing)
 ```
 
 ## Credits

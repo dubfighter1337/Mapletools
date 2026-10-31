@@ -777,7 +777,7 @@
   function loadScript(src) {
     return new Promise((resolve) => {
       const s = document.createElement('script');
-      s.src = src;
+      s.src = Site.asset(src);
       s.onload = () => resolve(true);
       s.onerror = () => resolve(false);
       document.head.appendChild(s);
